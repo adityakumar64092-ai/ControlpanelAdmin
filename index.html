@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Firebase Device Controller</title>
+<title>Device Controller</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
@@ -59,7 +59,7 @@
 
 <div id="setupScreen" class="setup-box">
   <h2>🔥 Firebase Connection Setup</h2>
-  <p class="subtitle" style="margin-bottom:0;">Ek baar setup karein — data upload + live sync automatic</p>
+  <p class="subtitle" style="margin-bottom:0;">Agar URL connect nahi hota, to bhi panel khulega (Offline Mode).</p>
 
   <label>Firebase Realtime Database URL</label>
   <input type="text" id="dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
@@ -124,18 +124,12 @@ let db = null;
 let nodePath = 'All_User/Info';
 let devices = {};
 let unsubscribe = null;
+let isOfflineMode = false;
 
 function setStatusMsg(msg, type = 'info') {
   const el = document.getElementById('statusMsg');
   el.className = 'status-msg status-' + type;
   el.innerHTML = msg;
-}
-function showToast(msg, isError = false) {
-  const t = document.createElement('div');
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
 }
 
 window.connectAndSetup = async function () {
@@ -143,46 +137,59 @@ window.connectAndSetup = async function () {
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
   const btn = document.getElementById('connectBtn');
 
-  if (!inputUrl) { setStatusMsg('❌ URL khali hai.', 'error'); return; }
-
-  // Clean input URL
-  if (!inputUrl.startsWith('http')) { inputUrl = 'https://' + inputUrl; }
-  inputUrl = inputUrl.replace(/\/$/, "");
+  if (!inputUrl.startsWith('http') && inputUrl !== '') { inputUrl = 'https://' + inputUrl; }
 
   btn.disabled = true;
-  btn.textContent = 'Connecting...';
-  setStatusMsg('⏳ Connecting to: <br><b>' + inputUrl + '</b>', 'info');
+  btn.textContent = 'Checking...';
+  setStatusMsg('⏳ Firebase check kar raha hoon...', 'info');
 
   try {
+    if (inputUrl === '') throw new Error("URL khali hai");
     if (app) { try { await deleteApp(app); } catch (e) {} }
     
-    // Init with user provided URL
     app = initializeApp({ databaseURL: inputUrl }, 'ctrl-' + Date.now());
     db = getDatabase(app);
 
-    // Check Connection
-    await get(ref(db, '.info/connected')); 
-    const snap = await get(ref(db, nodePath));
+    // Test connection with 4 sec timeout
+    await Promise.race([
+        get(ref(db, '.info/connected')),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 4000))
+    ]);
 
+    // Agar yahan aaya, matlab connect ho gaya
+    setStatusMsg('✅ Firebase Connected! Data upload ho raha hai...', 'success');
+    
+    const snap = await get(ref(db, nodePath));
     if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-      setStatusMsg('📤 Data upload kar raha hoon...', 'info');
       await set(ref(db, nodePath), DEFAULT_DATA);
-      setStatusMsg('✅ Data upload ho gaya!', 'success');
-    } else {
-      setStatusMsg('✅ Data pehle se maujood hai.', 'success');
     }
 
     localStorage.setItem('fb_config', JSON.stringify({ url: inputUrl, nodePath }));
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
     document.getElementById('dbInfo').textContent = 'Connected: ' + inputUrl;
+    
     startRealtimeSync();
+    isOfflineMode = false;
 
   } catch (err) {
-    let hint = 'Kripya Firebase Console mein check karein ki URL sahi hai, Rules open hain, aur Realtime Database create hua hai.';
-    setStatusMsg('❌ Error: ' + err.message + '<br><br>' + hint, 'error');
-    btn.disabled = false;
-    btn.textContent = 'Connect & Upload Data';
+    // ERROR BYPASS: Agar connect nahi hua, toh ghabrao mat, Offline mode chalu karo!
+    isOfflineMode = true;
+    
+    // Local storage se data uthao ya default lagao
+    let localData = localStorage.getItem('local_devices');
+    devices = localData ? JSON.parse(localData) : DEFAULT_DATA;
+
+    document.getElementById('setupScreen').classList.add('hidden');
+    document.getElementById('appScreen').classList.remove('hidden');
+    document.getElementById('dbInfo').textContent = '⚠️ Offline Mode (Firebase Connect Nahi Hua)';
+    
+    const badge = document.getElementById('connBadge');
+    badge.className = 'conn-status conn-disconnected';
+    badge.textContent = 'Offline';
+
+    renderDevices();
+    updateStats();
   }
 };
 
@@ -192,31 +199,42 @@ function startRealtimeSync() {
     badge.className = s.val() === true ? 'conn-status conn-connected' : 'conn-status conn-disconnected';
     badge.textContent = s.val() === true ? 'Live' : 'Offline';
   });
+  
   if (unsubscribe) unsubscribe();
   unsubscribe = onValue(ref(db, nodePath), (snapshot) => {
     devices = snapshot.val() || {};
     Object.keys(devices).forEach(k => { if (!devices[k].status) devices[k].status = 'Offline'; });
     renderDevices(); updateStats();
   }, (error) => { 
-    if(!String(error.message).includes('permission')) showToast('❌ Sync error: ' + error.message, true); 
+     // Ignore error in background 
   });
 }
 
 window.setDeviceStatus = async function (deviceId, status) {
-  if (!db) return;
-  try {
-    await update(ref(db, nodePath + '/' + deviceId), { status });
-    showToast('✅ → ' + status);
-  } catch (e) { showToast('❌ Rules check karein!', true); }
+  if (devices[deviceId]) {
+      devices[deviceId].status = status;
+      renderDevices(); updateStats();
+  }
+
+  if (!isOfflineMode && db) {
+    try { await update(ref(db, nodePath + '/' + deviceId), { status }); } catch(e) {}
+  } else {
+    // Save to local phone browser
+    localStorage.setItem('local_devices', JSON.stringify(devices));
+  }
 };
 
 window.setAll = async function (status) {
-  if (!db) return;
-  const updates = {};
-  Object.keys(devices).forEach(id => { updates[nodePath + '/' + id + '/status'] = status; });
-  try {
-    await update(ref(db), updates); showToast('✅ All → ' + status);
-  } catch (e) { showToast('❌ Rules check karein!', true); }
+  Object.keys(devices).forEach(id => { devices[id].status = status; });
+  renderDevices(); updateStats();
+
+  if (!isOfflineMode && db) {
+    const updates = {};
+    Object.keys(devices).forEach(id => { updates[nodePath + '/' + id + '/status'] = status; });
+    try { await update(ref(db), updates); } catch(e) {}
+  } else {
+    localStorage.setItem('local_devices', JSON.stringify(devices));
+  }
 };
 
 window.renderDevices = function () {
@@ -224,7 +242,7 @@ window.renderDevices = function () {
   const grid = document.getElementById('deviceGrid');
   grid.innerHTML = '';
   const entries = Object.entries(devices);
-  if (entries.length === 0) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices found. (Agar data upload nahi hua, to Firebase Rules check karein).</p>'; return; }
+  if (entries.length === 0) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices.</p>'; return; }
   
   entries.forEach(([id, d]) => {
     const name = d.Name || 'Unnamed';
@@ -251,7 +269,7 @@ function updateStats() {
 
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-window.disconnect = function () { if (unsubscribe) unsubscribe(); localStorage.removeItem('fb_config'); location.reload(); };
+window.disconnect = function () { localStorage.clear(); location.reload(); };
 </script>
 </body>
 </html>
