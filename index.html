@@ -6,324 +6,254 @@
 <title>Firebase Device Controller</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
   .container { max-width: 1300px; margin: 0 auto; }
-  h1 { color: #38bdf8; margin-bottom: 8px; font-size: 26px; }
-  .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 13px; }
-
-  .setup-box {
-    background: #1e293b; padding: 28px; border-radius: 12px;
-    max-width: 600px; margin: 60px auto; border: 1px solid #334155;
-  }
-  .setup-box h2 { color: #38bdf8; margin-bottom: 16px; font-size: 20px; }
-  .setup-box label {
-    display: block; font-size: 12px; color: #94a3b8;
-    margin-bottom: 6px; margin-top: 14px; text-transform: uppercase;
-  }
-  input, textarea {
-    width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #334155;
-    background: #0f172a; color: #e2e8f0; font-size: 14px; font-family: monospace;
-  }
-  input:focus, textarea:focus { outline: none; border-color: #38bdf8; }
-  textarea { min-height: 140px; resize: vertical; }
-  button {
-    padding: 12px 20px; border-radius: 8px; border: none;
-    background: #38bdf8; color: #0f172a; font-weight: 600; font-size: 14px;
-    cursor: pointer; transition: 0.2s;
-  }
-  button:hover { background: #0ea5e9; }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .full-btn { width: 100%; margin-top: 20px; padding: 14px; font-size: 15px; }
-
-  .toolbar {
-    display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center;
-  }
-  .toolbar input { flex: 1; min-width: 200px; }
+  h1 { color: #38bdf8; margin-bottom: 8px; font-size: 24px; }
+  .subtitle { color: #94a3b8; margin-bottom: 20px; font-size: 13px; }
+  .setup-box { background: #1e293b; padding: 26px; border-radius: 12px; max-width: 640px; margin: 40px auto; border: 1px solid #334155; }
+  .setup-box h2 { color: #38bdf8; margin-bottom: 8px; font-size: 19px; }
+  .setup-box label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 5px; margin-top: 14px; text-transform: uppercase; font-weight: 600; }
+  input { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 14px; font-family: monospace; }
+  input:focus { outline: none; border-color: #38bdf8; }
+  button { padding: 12px 20px; border-radius: 8px; border: none; background: #38bdf8; color: #0f172a; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
+  button:hover:not(:disabled) { background: #0ea5e9; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .full-btn { width: 100%; margin-top: 18px; padding: 14px; font-size: 15px; }
+  .status-msg { margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
+  .status-info { background: #1e3a8a33; color: #93c5fd; border: 1px solid #3b82f655; display: block; }
+  .status-error { background: #7f1d1d33; color: #fca5a5; border: 1px solid #dc262655; display: block; }
+  .status-success { background: #14532d33; color: #86efac; border: 1px solid #22c55e55; display: block; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .toolbar input { flex: 1; min-width: 180px; }
   .btn-secondary { background: #334155; color: #e2e8f0; }
-  .btn-secondary:hover { background: #475569; }
   .btn-danger { background: #ef4444; color: white; }
-  .btn-danger:hover { background: #dc2626; }
-
-  .stats { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
-  .stat { background: #1e293b; padding: 14px 22px; border-radius: 8px; border: 1px solid #334155; }
-  .stat-value { font-size: 22px; font-weight: 700; color: #38bdf8; }
-  .stat-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
-
-  .device-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;
-  }
-  .device-card {
-    background: #1e293b; border-radius: 10px; padding: 14px;
-    border: 1px solid #334155; transition: 0.3s;
-  }
+  .stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat { background: #1e293b; padding: 12px 20px; border-radius: 8px; border: 1px solid #334155; }
+  .stat-value { font-size: 20px; font-weight: 700; color: #38bdf8; }
+  .stat-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
+  .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .device-card { background: #1e293b; border-radius: 10px; padding: 14px; border: 1px solid #334155; transition: 0.2s; }
   .device-card.online { border-left: 4px solid #22c55e; }
-  .device-card.offline { border-left: 4px solid #ef4444; opacity: 0.85; }
-
-  .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-  .device-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
-  .device-id { font-size: 10px; color: #64748b; font-family: monospace; }
-  .status-badge {
-    padding: 3px 9px; border-radius: 20px; font-size: 10px;
-    font-weight: 600; text-transform: uppercase;
-  }
+  .device-card.offline { border-left: 4px solid #ef4444; opacity: 0.9; }
+  .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; gap: 8px; }
+  .device-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; word-break: break-word; }
+  .device-id { font-size: 10px; color: #64748b; font-family: monospace; word-break: break-all; }
+  .status-badge { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
   .badge-online { background: #22c55e22; color: #22c55e; }
   .badge-offline { background: #ef444422; color: #ef4444; }
-
   .device-info { display: flex; gap: 10px; margin: 8px 0; font-size: 11px; color: #94a3b8; }
-  .device-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .device-actions { display: flex; gap: 6px; margin-top: 8px; }
   .device-actions button { flex: 1; padding: 7px; font-size: 12px; border-radius: 6px; }
   .btn-online { background: #22c55e; color: white; }
-  .btn-online:hover { background: #16a34a; }
   .btn-offline { background: #ef4444; color: white; }
-  .btn-offline:hover { background: #dc2626; }
-
-  .conn-status {
-    display: inline-block; padding: 4px 12px; border-radius: 20px;
-    font-size: 11px; font-weight: 600; margin-left: 10px;
-  }
+  .conn-status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; margin-left: 8px; }
   .conn-connected { background: #22c55e22; color: #22c55e; }
   .conn-disconnected { background: #ef444422; color: #ef4444; }
   .conn-connecting { background: #f59e0b22; color: #f59e0b; }
   .hidden { display: none !important; }
-
-  .toast {
-    position: fixed; bottom: 20px; right: 20px; background: #1e293b;
-    padding: 14px 18px; border-radius: 8px; border: 1px solid #38bdf8;
-    font-size: 13px; z-index: 999; max-width: 320px;
-    animation: slideIn 0.3s ease;
-  }
-  @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: #1e293b; padding: 14px 18px; border-radius: 8px; border: 1px solid #38bdf8; font-size: 13px; z-index: 999; max-width: 340px; }
+  .toast.error { border-color: #ef4444; color: #fca5a5; }
 </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
 <div id="setupScreen" class="setup-box">
-  <h2>🔥 Firebase Setup</h2>
-  <p class="subtitle">Ek baar setup karein, phir seedha control panel khulega</p>
+  <h2>🔥 Firebase Connection Setup</h2>
+  <p class="subtitle" style="margin-bottom:0;">Ek baar setup karein — data upload + live sync automatic</p>
 
+  <!-- Yahan aap apna URL daalenge -->
   <label>Firebase Realtime Database URL</label>
-  <input type="text" id="dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
+  <input type="text" id="dbUrl" placeholder="https://maxjoker98-d9bcb-default-rtdb.firebaseio.com" />
 
-  <label>Firebase API Key (optional — agar auth enabled hai)</label>
-  <input type="text" id="apiKey" placeholder="AIzaSy..." />
+  <label>Node Path</label>
+  <input type="text" id="nodePath" value="All_User/Info" />
 
-  <label>Node Path (jahan aapka data hai)</label>
-  <input type="text" id="nodePath" placeholder="All_User/Info" value="All_User/Info" />
-
-  <button class="full-btn" onclick="connectFirebase()">Connect & Load Devices</button>
-  <p id="setupError" style="color:#ef4444;margin-top:12px;font-size:13px;"></p>
+  <button class="full-btn" id="connectBtn" onclick="connectAndSetup()">Connect & Upload Data</button>
+  <div id="statusMsg" class="status-msg"></div>
 </div>
 
-<!-- CONTROL PANEL -->
 <div id="appScreen" class="container hidden">
   <h1>📱 Device Controller <span id="connBadge" class="conn-status conn-connecting">Connecting...</span></h1>
   <p class="subtitle" id="dbInfo">—</p>
-
   <div class="stats">
     <div class="stat"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Total</div></div>
     <div class="stat"><div class="stat-value" style="color:#22c55e" id="onlineCount">0</div><div class="stat-label">Online</div></div>
     <div class="stat"><div class="stat-value" style="color:#ef4444" id="offlineCount">0</div><div class="stat-label">Offline</div></div>
   </div>
-
   <div class="toolbar">
     <input type="text" id="searchInput" placeholder="🔍 Search device..." oninput="renderDevices()" />
     <button class="btn-secondary" onclick="setAll('Online')">All Online</button>
     <button class="btn-secondary" onclick="setAll('Offline')">All Offline</button>
-    <button class="btn-secondary" onclick="addDevice()">+ Add Device</button>
     <button class="btn-danger" onclick="disconnect()">Disconnect</button>
   </div>
-
   <div class="device-grid" id="deviceGrid"></div>
 </div>
 
-<!-- FIREBASE SDK -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, set, get }
-  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
-// ---- GLOBAL STATE ----
+const DEFAULT_DATA = {
+  "00029a1756388529281": { "Battery": "96", "Id": "00029a1756388529281", "Name": "OnePlus Nord 2T 5G", "did": "4a731d81b1db0b58", "status": "Online" },
+  "00031a1756388966050": { "Battery": "16", "Id": "00031a1756388966050", "Name": "ĐJ's S23 Ultra", "did": "0a33ed8b089a163e", "status": "Online" },
+  "00065a1756401015923": { "Battery": "93", "Id": "00065a1756401015923", "Name": "realme 14 Pro+ 5G", "did": "fe7c10d2341ee8a3", "status": "Online" },
+  "00138a1756525555297": { "Battery": "79", "Id": "00138a1756525555297", "Name": "V2315", "did": "4d191af7e613011e", "status": "Online" },
+  "00153a1756552941803": { "Battery": "20", "Id": "00153a1756552941803", "Name": "OnePlus Nord CE4", "did": "b5a5989998faa031", "status": "Online" },
+  "00169a1756568093310": { "Battery": "100", "Id": "00169a1756568093310", "Name": "I2127", "did": "b316e815b590aa21", "status": "Online" },
+  "00196a1756627928638": { "Battery": "39", "Id": "00196a1756627928638", "Name": "VINAYAK's S20 FE", "did": "326f851a5eeaea37", "status": "Online" },
+  "00256a1756722455180": { "Battery": "3", "Id": "00256a1756722455180", "Name": "V2351", "did": "08279d429beaf249", "status": "Online" },
+  "00259a1756728563832": { "Battery": "84", "Id": "00259a1756728563832", "Name": "OnePlus Nord 2T 5G", "did": "18fff957a8a4a558", "status": "Online" },
+  "00281a1756776773303": { "Battery": "52", "Id": "00281a1756776773303", "Name": "V2205", "did": "4e39c0ead8a42f1b", "status": "Online" },
+  "00303a1756806598319": { "Battery": "30", "Id": "00303a1756806598319", "Name": "V2351", "did": "a49c2d126843c288", "status": "Online" },
+  "00307a1756811078910": { "Battery": "58", "Id": "00307a1756811078910", "Name": "realme 11x 5G", "did": "7a0f6458b1bf6567", "status": "Online" },
+  "00340a1757086399125": { "Battery": "38", "Id": "00340a1757086399125", "Name": "V2415", "did": "ca782ba4d0ab8839", "status": "Online" },
+  "00347a1757087320485": { "Battery": "66", "Id": "00347a1757087320485", "Name": "realme C33", "did": "f4fb7f6429574686", "status": "Online" },
+  "00390a1757153456898": { "Battery": "52", "Id": "00390a1757153456898", "Name": "OnePlus Nord CE 3 Lite 5G", "did": "ff143ef316bb59d1", "status": "Offline" },
+  "00408a1757173731858": { "Battery": "81", "Id": "00408a1757173731858", "Name": "OPPO A16", "did": "b5dea82c659a5842", "status": "Online" },
+  "00495a1757246893574": { "Battery": "51", "Id": "00495a1757246893574", "Name": "realme 8s 5G", "did": "799abe138da54f24", "status": "Online" },
+  "00522a1757289744537": { "Battery": "70", "Id": "00522a1757289744537", "Name": "realme C30", "did": "d6b3a6cbd0d9fe77", "status": "Offline" },
+  "00528a1757295774780": { "Battery": "94", "Id": "00528a1757295774780", "Name": "V2407", "did": "12345eae474d93fc", "status": "Online" },
+  "00529a1757295811695": { "Battery": "32", "Id": "00529a1757295811695", "Name": "V2416", "did": "c21f4e810634a69f", "status": "Online" },
+  "00538a1757317852217": { "Battery": "67", "Id": "00538a1757317852217", "Name": "Galaxy A16 5G", "did": "377a8e8b706de8e5", "status": "Online" },
+  "00642a1757515373932": { "Battery": "97", "Id": "00642a1757515373932", "Name": "RMX1925", "did": "2f9959a59b5a2bb7", "status": "Online" },
+  "00684a1757640376434": { "Battery": "25", "Id": "00684a1757640376434", "Name": "Satyaveer's A04s", "did": "ee6592c1d8c4b927", "status": "Online" },
+  "00685a1757640460985": { "Battery": "76", "Id": "00685a1757640460985", "Name": "Jai's A22", "did": "4b969188f0ac8da7", "status": "Online" }
+};
+
+let app = null;
 let db = null;
 let nodePath = 'All_User/Info';
 let devices = {};
+let unsubscribe = null;
 
-// ============================================================
-// CONNECT TO FIREBASE
-// ============================================================
-window.connectFirebase = async function () {
-  const url = document.getElementById('dbUrl').value.trim();
-  const apiKey = document.getElementById('apiKey').value.trim();
+function setStatusMsg(msg, type = 'info') {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status-msg status-' + type;
+  el.innerHTML = msg;
+}
+function showToast(msg, isError = false) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// 🔥 SMART URL FIX 🔥
+window.connectAndSetup = async function () {
+  let rawUrl = document.getElementById('dbUrl').value.trim();
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
-  const errEl = document.getElementById('setupError');
+  const btn = document.getElementById('connectBtn');
 
-  if (!url) { errEl.textContent = '❌ Database URL required'; return; }
-  errEl.textContent = '';
+  if (!rawUrl) { setStatusMsg('❌ URL khali hai.', 'error'); return; }
+
+  // 1. Agar https:// nahi hai to lagao
+  if (!rawUrl.startsWith('http')) { rawUrl = 'https://' + rawUrl; }
+  // 2. Aakhir se slash (/) hatao
+  rawUrl = rawUrl.replace(/\/$/, "");
+
+  // 3. FORCE FIX: Agar URL adhura hai (jaise sirf maxjoker98 tak hai), to use pura banao
+  if (rawUrl.includes('-default-rtdb')) {
+      if (!rawUrl.includes('.firebaseio.com') && !rawUrl.includes('.firebasedatabase.app')) {
+          if (rawUrl.endsWith('-default-rtdb')) {
+              rawUrl = rawUrl + '.firebaseio.com';
+          } else {
+              // Agar bich me kuch cut gaya hai
+              rawUrl = rawUrl.split('-default-rtdb')[0] + '-default-rtdb.firebaseio.com';
+          }
+      }
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Connecting...';
+  setStatusMsg('⏳ Trying URL: <br><b>' + rawUrl + '</b>', 'info');
 
   try {
-    const config = { databaseURL: url };
-    if (apiKey) config.apiKey = apiKey;
-
-    const app = initializeApp(config);
+    if (app) { try { await deleteApp(app); } catch (e) {} }
+    app = initializeApp({ databaseURL: rawUrl }, 'ctrl-' + Date.now());
     db = getDatabase(app);
 
-    // Test connection by reading once
+    await get(ref(db, '.info/connected')); 
     const snap = await get(ref(db, nodePath));
-    if (!snap.exists()) {
-      errEl.textContent = `⚠️ Node "${nodePath}" khali hai. Kuch devices nahi mile.`;
+
+    if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
+      setStatusMsg('📤 Data upload kar raha hoon...', 'info');
+      await set(ref(db, nodePath), DEFAULT_DATA);
+      setStatusMsg('✅ Data upload ho gaya!', 'success');
+    } else {
+      setStatusMsg('✅ Data pehle se maujood hai.', 'success');
     }
 
-    // Save to localStorage for next time
-    localStorage.setItem('fb_config', JSON.stringify({ url, apiKey, nodePath }));
-
+    localStorage.setItem('fb_config', JSON.stringify({ url: rawUrl, nodePath }));
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('dbInfo').textContent = `Connected: ${url} → ${nodePath}`;
-
+    document.getElementById('dbInfo').textContent = 'Connected: ' + rawUrl;
     startRealtimeSync();
-  } catch (e) {
-    errEl.textContent = '❌ Error: ' + e.message;
-    console.error(e);
+
+  } catch (err) {
+    let hint = '';
+    const m = String(err.message || err);
+    if (m.includes('permission')) {
+      hint = '<br><br>🔧 <b>Fix:</b> Firebase Rules check karein.';
+    } else {
+      hint = '<br><br>🔧 <b>Fix:</b> Aapne jo URL daala hai wo galat hai. Yeh try kiya: <b>' + rawUrl + '</b>';
+    }
+    setStatusMsg('❌ Error: ' + m + hint, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Connect & Upload Data';
   }
 };
 
-// ============================================================
-// REAL-TIME LISTENER — yahi magic hai
-// ============================================================
 function startRealtimeSync() {
-  const devicesRef = ref(db, nodePath);
-
-  onValue(devicesRef, (snapshot) => {
-    // Connection badge
-    const badge = document.getElementById('connBadge');
-    badge.className = 'conn-status conn-connected';
-    badge.textContent = 'Live';
-
+  const badge = document.getElementById('connBadge');
+  onValue(ref(db, '.info/connected'), (s) => {
+    badge.className = s.val() === true ? 'conn-status conn-connected' : 'conn-status conn-disconnected';
+    badge.textContent = s.val() === true ? 'Live' : 'Offline';
+  });
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onValue(ref(db, nodePath), (snapshot) => {
     devices = snapshot.val() || {};
-
-    // Normalize: agar kisi device mein status nahi hai to default Offline
-    Object.keys(devices).forEach(k => {
-      if (!devices[k].status) devices[k].status = 'Offline';
-    });
-
-    renderDevices();
-    updateStats();
-  }, (error) => {
-    const badge = document.getElementById('connBadge');
-    badge.className = 'conn-status conn-disconnected';
-    badge.textContent = 'Error';
-    console.error('Firebase error:', error);
-  });
-
-  // Monitor connection state
-  const connectedRef = ref(db, '.info/connected');
-  onValue(connectedRef, (snap) => {
-    const badge = document.getElementById('connBadge');
-    if (snap.val() === true) {
-      badge.className = 'conn-status conn-connected';
-      badge.textContent = 'Live';
-    } else {
-      badge.className = 'conn-status conn-disconnected';
-      badge.textContent = 'Offline';
-    }
-  });
+    Object.keys(devices).forEach(k => { if (!devices[k].status) devices[k].status = 'Offline'; });
+    renderDevices(); updateStats();
+  }, (error) => { showToast('❌ Sync error: ' + error.message, true); });
 }
 
-// ============================================================
-// CHANGE DEVICE STATUS (single device)
-// ============================================================
-async function setDeviceStatus(deviceId, status) {
+window.setDeviceStatus = async function (deviceId, status) {
   if (!db) return;
   try {
-    await update(ref(db, `${nodePath}/${deviceId}`), { status });
-    showToast(`✅ ${deviceId.slice(0, 10)}... → ${status}`);
-  } catch (e) {
-    showToast('❌ Error: ' + e.message);
-  }
-}
-window.setDeviceStatus = setDeviceStatus;
+    await update(ref(db, nodePath + '/' + deviceId), { status });
+    showToast('✅ → ' + status);
+  } catch (e) { showToast('❌ ' + e.message, true); }
+};
 
-// ============================================================
-// CHANGE ALL DEVICES
-// ============================================================
 window.setAll = async function (status) {
   if (!db) return;
   const updates = {};
-  Object.keys(devices).forEach(id => {
-    updates[`${nodePath}/${id}/status`] = status;
-  });
+  Object.keys(devices).forEach(id => { updates[nodePath + '/' + id + '/status'] = status; });
   try {
-    await update(ref(db), updates);
-    showToast(`✅ All devices → ${status}`);
-  } catch (e) {
-    showToast('❌ Error: ' + e.message);
-  }
+    await update(ref(db), updates); showToast('✅ All → ' + status);
+  } catch (e) { showToast('❌ ' + e.message, true); }
 };
 
-// ============================================================
-// ADD NEW DEVICE
-// ============================================================
-window.addDevice = async function () {
-  const id = prompt('Device ID (unique):');
-  if (!id) return;
-  const name = prompt('Device Name:') || 'New Device';
-  try {
-    await set(ref(db, `${nodePath}/${id}`), {
-      Id: id,
-      Name: name,
-      Battery: '100',
-      did: id,
-      status: 'Offline'
-    });
-    showToast('✅ Device added');
-  } catch (e) {
-    showToast('❌ Error: ' + e.message);
-  }
-};
-
-// ============================================================
-// RENDER
-// ============================================================
 window.renderDevices = function () {
-  const search = document.getElementById('searchInput').value.toLowerCase();
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
   const grid = document.getElementById('deviceGrid');
   grid.innerHTML = '';
-
   const entries = Object.entries(devices);
-  if (entries.length === 0) {
-    grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices found. "+ Add Device" se pehla device add karein.</p>';
-    return;
-  }
-
+  if (entries.length === 0) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices found.</p>'; return; }
+  
   entries.forEach(([id, d]) => {
     const name = d.Name || 'Unnamed';
-    if (search && !name.toLowerCase().includes(search) &&
-        !id.toLowerCase().includes(search) &&
-        !(d.did || '').toLowerCase().includes(search)) return;
-
+    if (search && !name.toLowerCase().includes(search) && !id.toLowerCase().includes(search)) return;
     const isOnline = d.status === 'Online';
     const card = document.createElement('div');
-    card.className = `device-card ${isOnline ? 'online' : 'offline'}`;
-    card.innerHTML = `
-      <div class="device-header">
-        <div>
-          <div class="device-name">${escapeHtml(name)}</div>
-          <div class="device-id">${escapeHtml(d.did || id)}</div>
-        </div>
-        <span class="status-badge ${isOnline ? 'badge-online' : 'badge-offline'}">${d.status}</span>
-      </div>
-      <div class="device-info">
-        <span>🔋 ${d.Battery || '?'}%</span>
-        <span>🆔 ${id.slice(0, 12)}...</span>
-      </div>
-      <div class="device-actions">
-        <button class="btn-online" onclick="setDeviceStatus('${id}', 'Online')" ${isOnline ? 'disabled' : ''}>Online</button>
-        <button class="btn-offline" onclick="setDeviceStatus('${id}', 'Offline')" ${!isOnline ? 'disabled' : ''}>Offline</button>
-      </div>
-    `;
+    card.className = 'device-card ' + (isOnline ? 'online' : 'offline');
+    card.innerHTML = 
+      '<div class="device-header"><div><div class="device-name">' + esc(name) + '</div><div class="device-id">' + esc(d.did || id) + '</div></div>' +
+      '<span class="status-badge ' + (isOnline ? 'badge-online' : 'badge-offline') + '">' + d.status + '</span></div>' +
+      '<div class="device-info"><span>🔋 ' + esc(d.Battery || '?') + '%</span><span>🆔 ' + id.slice(0, 12) + '...</span></div>' +
+      '<div class="device-actions"><button class="btn-online" ' + (isOnline ? 'disabled' : '') + ' onclick="setDeviceStatus(\'' + id + '\', \'Online\')">Online</button>' +
+      '<button class="btn-offline" ' + (!isOnline ? 'disabled' : '') + ' onclick="setDeviceStatus(\'' + id + '\', \'Offline\')">Offline</button></div>';
     grid.appendChild(card);
   });
 };
@@ -335,42 +265,9 @@ function updateStats() {
   document.getElementById('offlineCount').textContent = all.filter(d => d.status === 'Offline').length;
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
-}
-
-// ============================================================
-// DISCONNECT
-// ============================================================
-window.disconnect = function () {
-  localStorage.removeItem('fb_config');
-  location.reload();
-};
-
-// ============================================================
-// AUTO-LOAD SAVED CONFIG
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('fb_config');
-  if (saved) {
-    try {
-      const c = JSON.parse(saved);
-      document.getElementById('dbUrl').value = c.url || '';
-      document.getElementById('apiKey').value = c.apiKey || '';
-      document.getElementById('nodePath').value = c.nodePath || 'All_User/Info';
-    } catch (e) { /* ignore */ }
-  }
-});
+window.disconnect = function () { if (unsubscribe) unsubscribe(); localStorage.removeItem('fb_config'); location.reload(); };
 </script>
-
 </body>
 </html>
