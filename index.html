@@ -138,93 +138,53 @@ function showToast(msg, isError = false) {
   setTimeout(() => t.remove(), 3000);
 }
 
-// 🔥 SMART REGION AUTO-DETECT 🔥
 window.connectAndSetup = async function () {
-  let rawUrl = document.getElementById('dbUrl').value.trim();
+  let inputUrl = document.getElementById('dbUrl').value.trim();
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
   const btn = document.getElementById('connectBtn');
 
-  if (!rawUrl) { setStatusMsg('❌ URL khali hai.', 'error'); return; }
+  if (!inputUrl) { setStatusMsg('❌ URL khali hai.', 'error'); return; }
 
-  // URL Clean karo
-  if (!rawUrl.startsWith('http')) { rawUrl = 'https://' + rawUrl; }
-  rawUrl = rawUrl.replace(/\/$/, ""); 
-  let baseUrl = rawUrl.split('/')[2]; // Sirf domain nikal lo
-  
-  // 2 possible URLs banayenge: ek US ka, ek Asia ka
-  let projectId = baseUrl.replace('.firebaseio.com', '').replace('.asia-southeast1.firebasedatabase.app', '').replace('.firebasedatabase.app', '');
-  if(!projectId.includes('-default-rtdb')) {
-      projectId = projectId + '-default-rtdb';
+  // 🔥 ASIA REGION FIX 🔥
+  let projectId = inputUrl.split('.')[0].replace('https://', ''); 
+  if (!projectId.includes('-default-rtdb')) {
+     projectId = projectId + '-default-rtdb';
   } else {
-      projectId = projectId.split('-default-rtdb')[0] + '-default-rtdb';
+     projectId = projectId.split('-default-rtdb')[0] + '-default-rtdb';
   }
 
-  const urlsToTry = [
-    `https://${projectId}.firebaseio.com`,
-    `https://${projectId}.asia-southeast1.firebasedatabase.app`
-  ];
+  // Force Asia URL (Singapore)
+  const finalUrl = `https://${projectId}.asia-southeast1.firebasedatabase.app`;
 
   btn.disabled = true;
   btn.textContent = 'Connecting...';
-  setStatusMsg('⏳ Checking database region...', 'info');
-
-  let connectedSuccessfully = false;
-  let lastError = '';
-
-  for (let url of urlsToTry) {
-    try {
-      if (app) { try { await deleteApp(app); } catch (e) {} }
-      app = initializeApp({ databaseURL: url }, 'ctrl-' + Date.now());
-      db = getDatabase(app);
-      
-      // 5 second timeout ke sath check karo
-      await Promise.race([
-        get(ref(db, '.info/connected')),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
-      ]);
-
-      // Agar yahan tak aaya matlab connect ho gaya!
-      connectedSuccessfully = true;
-      rawUrl = url;
-      break;
-    } catch (e) {
-      lastError = e.message;
-      // Agar permission denied aaya, matlab URL sahi hai bas rules nahi hain
-      if (String(e.message).includes('permission') || String(e.message).includes('PERMISSION_DENIED')) {
-        connectedSuccessfully = true;
-        rawUrl = url;
-        break;
-      }
-    }
-  }
-
-  if (!connectedSuccessfully) {
-    setStatusMsg('❌ Database se connect nahi ho paya. <br>Error: ' + lastError + '<br><br>Kripya check karein ki aapne Firebase mein "Realtime Database" create kiya hai ya nahi.', 'error');
-    btn.disabled = false;
-    btn.textContent = 'Connect & Upload Data';
-    return;
-  }
+  setStatusMsg('⏳ Connecting to Asia Server...', 'info');
 
   try {
-    setStatusMsg('📤 Connected! Ab data check kar raha hoon...', 'info');
+    if (app) { try { await deleteApp(app); } catch (e) {} }
+    app = initializeApp({ databaseURL: finalUrl }, 'ctrl-' + Date.now());
+    db = getDatabase(app);
+
+    await get(ref(db, '.info/connected')); 
     const snap = await get(ref(db, nodePath));
 
     if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
+      setStatusMsg('📤 Data upload kar raha hoon...', 'info');
       await set(ref(db, nodePath), DEFAULT_DATA);
       setStatusMsg('✅ Data upload ho gaya!', 'success');
     } else {
       setStatusMsg('✅ Data pehle se maujood hai.', 'success');
     }
 
-    localStorage.setItem('fb_config', JSON.stringify({ url: rawUrl, nodePath }));
+    localStorage.setItem('fb_config', JSON.stringify({ url: finalUrl, nodePath }));
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('dbInfo').textContent = 'Connected: ' + rawUrl;
-    
+    document.getElementById('dbInfo').textContent = 'Connected: ' + finalUrl;
     startRealtimeSync();
 
   } catch (err) {
-    setStatusMsg('❌ Connected, lekin data nahi padh paya. Rules check karein!', 'error');
+    let hint = 'Kripya Firebase Console mein check karein ki "Realtime Database" create hua hai ya nahi, aur Rules "Test Mode" mein hain ya nahi.';
+    setStatusMsg('❌ Error: ' + err.message + '<br><br>' + hint, 'error');
     btn.disabled = false;
     btn.textContent = 'Connect & Upload Data';
   }
@@ -251,9 +211,7 @@ window.setDeviceStatus = async function (deviceId, status) {
   try {
     await update(ref(db, nodePath + '/' + deviceId), { status });
     showToast('✅ → ' + status);
-  } catch (e) { 
-    showToast('❌ Rules check karein!', true); 
-  }
+  } catch (e) { showToast('❌ Rules check karein!', true); }
 };
 
 window.setAll = async function (status) {
