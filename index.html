@@ -3,40 +3,50 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Device Panel</title>
+<title>Device Control Panel</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
 :root{
-  --bg:#020205; --bg2:#0a0514; --bg3:#120a22; --bg4:#1a0f30;
+  --bg:#020205; --bg2:#0a0514; --bg3:#120a22; --bg4:#1a0f30; --bg5:#221440;
   --gold:#a020f0; --gold2:#bf55ec; --gold3:#d896ff;
   --mint:#00d4aa; --rose:#ff0055; --sky:#0088ff; --cyan:#00d4ff;
   --text:#f0f0ff; --sub:#8a9bb4; --dim:#4a5b74;
   --border:rgba(160,32,240,.2); --border2:rgba(160,32,240,.4);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:var(--bg);}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--sub)}
 
-/* SETUP SCREEN */
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============ SETUP ============ */
 #setup{display:flex;align-items:center;justify-content:center;height:100vh;padding:24px;
-  background:radial-gradient(circle at 20% 30%,rgba(160,32,240,.15),transparent 50%),
-             radial-gradient(circle at 80% 70%,rgba(0,212,255,.1),transparent 50%),var(--bg);}
-.setup-card{background:rgba(10,5,20,.85);backdrop-filter:blur(16px);
-  border:1px solid var(--border2);border-radius:24px;padding:40px;width:100%;max-width:440px;
-  box-shadow:0 40px 100px rgba(0,0,0,.9),0 0 80px rgba(160,32,240,.15);position:relative;overflow:hidden}
+  background:radial-gradient(circle at 20% 30%,rgba(160,32,240,.18),transparent 55%),
+             radial-gradient(circle at 80% 70%,rgba(0,212,255,.12),transparent 55%),var(--bg)}
+.setup-card{background:rgba(10,5,20,.88);backdrop-filter:blur(18px);
+  border:1px solid var(--border2);border-radius:24px;padding:42px 40px;width:100%;max-width:460px;
+  box-shadow:0 40px 100px rgba(0,0,0,.9),0 0 80px rgba(160,32,240,.18);
+  position:relative;overflow:hidden;animation:fadeUp .5s ease}
 .setup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,#a020f0,#00d4ff,#a020f0);background-size:200%;
   animation:shimmer 3s linear infinite}
-@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-.setup-h{font-size:28px;font-weight:800;margin-bottom:8px}
+.setup-h{font-size:28px;font-weight:800;margin-bottom:8px;letter-spacing:-.5px}
 .gold-word{background:linear-gradient(90deg,#00d4ff,#a020f0,#00d4ff);background-size:200%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 2.5s linear infinite}
-.setup-sub{font-size:13px;color:var(--sub);margin-bottom:24px;line-height:1.6}
-.fl{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--sub);margin-bottom:7px}
-.fi{width:100%;padding:13px 16px;background:rgba(16,28,46,.8);border:1px solid rgba(0,212,255,.14);
-  border-radius:12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;
-  outline:none;margin-bottom:16px;transition:border-color .2s}
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 2.5s linear infinite}
+.setup-sub{font-size:13px;color:var(--sub);margin-bottom:26px;line-height:1.6}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--sub);margin-bottom:7px}
+.fi{width:100%;padding:13px 16px;background:rgba(16,28,46,.8);
+  border:1px solid rgba(0,212,255,.15);border-radius:12px;color:var(--text);
+  font-family:'Exo 2',sans-serif;font-size:14px;outline:none;margin-bottom:16px;
+  transition:border-color .2s}
 .fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
 .fi::placeholder{color:var(--dim)}
 .cta{width:100%;padding:15px;border:none;border-radius:12px;color:#020810;
@@ -44,106 +54,143 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
   background:linear-gradient(135deg,#22e5ff,#00d4ff,#0088ff);
   box-shadow:0 6px 30px rgba(0,212,255,.4);transition:all .25s}
 .cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,212,255,.55)}
+.s-err{color:var(--rose);font-size:12px;text-align:center;margin-top:14px;
+  display:none;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.25);
+  padding:10px 14px;border-radius:9px}
 
-/* MAIN PANEL */
+/* ============ PANEL ============ */
 #panel{display:none;height:100vh;flex-direction:column}
 #panel.open{display:flex}
 .tb{background:linear-gradient(90deg,#080d14,#0c121c);border-bottom:1px solid var(--border);
-  height:56px;display:flex;align-items:center;gap:14px;padding:0 20px;flex-shrink:0;position:relative}
+  height:58px;display:flex;align-items:center;gap:14px;padding:0 20px;flex-shrink:0;
+  position:relative}
 .tb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,.7),transparent)}
-.tb-logo{font-size:17px;font-weight:800}
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.7),rgba(160,32,240,.5),transparent)}
+.tb-logo{font-size:17px;font-weight:800;letter-spacing:-.2px}
 .tb-gl{background:linear-gradient(90deg,#00d4ff,#a020f0,#00d4ff);background-size:200%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
-.tb-pills{display:flex;gap:8px;margin-left:20px}
-.pill{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px}
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite}
+.tb-pills{display:flex;gap:8px;margin-left:16px}
+.pill{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;letter-spacing:.3px}
 .p-t{background:rgba(0,212,255,.12);color:var(--cyan)}
 .p-on{background:rgba(0,212,170,.12);color:var(--mint)}
 .p-off{background:rgba(255,0,85,.1);color:var(--rose)}
 .tb-spacer{flex:1}
-.tb-btn{height:32px;padding:0 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:8px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;
-  transition:all .15s}
+.tb-btn{height:34px;padding:0 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--sub);font-family:'Exo 2',sans-serif;font-size:12px;
+  font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
 .tb-btn:hover{color:var(--text);border-color:var(--border2);background:var(--bg4)}
+.tb-btn.refresh-btn{color:var(--cyan);border-color:rgba(0,212,255,.3)}
+.tb-btn.refresh-btn:hover{background:rgba(0,212,255,.1)}
+.tb-btn.spinning svg{animation:spin .6s linear infinite}
 
 .body{display:flex;flex:1;overflow:hidden}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-
 .tab-body{flex:1;overflow-y:auto;padding:24px}
+
+/* Toolbar */
+.toolbar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
+.search-box{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;
+  transition:border-color .2s}
+.search-box:focus-within{border-color:var(--gold)}
+.search-box input{flex:1;background:none;border:none;outline:none;color:var(--text);
+  font-family:'Exo 2',sans-serif;font-size:13px}
+.search-box input::placeholder{color:var(--dim)}
+.filter-btn{padding:9px 16px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;color:var(--sub);font-family:'Exo 2',sans-serif;font-size:12px;
+  font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
+.filter-btn.active{background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:var(--cyan)}
+.filter-btn:hover:not(.active){color:var(--text);border-color:var(--border2)}
+
 .sec-hdr{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
   color:var(--sub);margin-bottom:16px;display:flex;align-items:center;gap:12px}
-.sec-hdr::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.sec-hdr::after{content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,var(--border),transparent)}
 
-.dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
-.dev-card{background:linear-gradient(145deg,var(--bg3),var(--bg2));
-  border:1px solid var(--border);border-radius:18px;padding:20px;position:relative;
-  transition:all .2s;overflow:hidden}
-.dev-card:hover{border-color:var(--border2);transform:translateY(-2px);
-  box-shadow:0 12px 40px rgba(0,0,0,.5)}
-.dev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0}
-.dev-card.online::before{background:linear-gradient(90deg,#00d4aa,#00d4ff)}
-.dev-card.offline::before{background:linear-gradient(90deg,#ff0055,#ff6b00)}
+/* ============ DEVICE LIST (with serial number) ============ */
+.dev-list{display:flex;flex-direction:column;gap:10px}
+.dev-row{background:linear-gradient(145deg,var(--bg3),var(--bg2));
+  border:1px solid var(--border);border-radius:14px;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;position:relative;
+  transition:all .2s;animation:fadeUp .3s ease}
+.dev-row:hover{border-color:var(--border2);transform:translateX(3px);
+  box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.dev-row.online{border-left:3px solid var(--mint)}
+.dev-row.offline{border-left:3px solid var(--rose)}
 
-.dev-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.dev-av{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--bg4),#221440);
+/* Serial number */
+.dev-num{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--bg4),var(--bg5));
   border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-size:20px;flex-shrink:0;position:relative}
-.av-dot{position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;border-radius:50%;
-  border:2px solid var(--bg2)}
-.av-dot.on{background:var(--mint);box-shadow:0 0 8px var(--mint);animation:pulse 2s infinite}
-.av-dot.off{background:var(--rose)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;
+  color:var(--cyan);flex-shrink:0;letter-spacing:.5px;
+  box-shadow:inset 0 1px 0 rgba(0,212,255,.1)}
+
 .dev-meta{flex:1;min-width:0}
-.dev-n{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis;margin-bottom:3px}
+.dev-n{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
 .dev-id{font-size:10px;color:var(--dim);font-family:'Share Tech Mono',monospace;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.dev-info{display:flex;gap:14px;padding:12px 0;margin-bottom:14px;
-  border-top:1px solid rgba(0,212,255,.06);border-bottom:1px solid rgba(0,212,255,.06)}
-.info-item{flex:1;min-width:0}
-.info-l{font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.info-v{font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-stats{display:flex;gap:18px;flex-shrink:0;margin-right:6px}
+.dstat{text-align:left;min-width:70px}
+.dstat-l{font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:3px}
+.dstat-v{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.dstat-v.on{color:var(--mint)}
+.dstat-v.off{color:var(--rose)}
 
-.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.toggle-lbl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.5px}
-.toggle-lbl .actual{color:var(--dim);font-weight:400}
-.toggle-btn{position:relative;width:56px;height:30px;border-radius:30px;border:none;cursor:pointer;
-  transition:background .25s;flex-shrink:0}
+/* Toggle */
+.toggle-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+.toggle-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--dim)}
+.toggle-btn{position:relative;width:56px;height:30px;border-radius:30px;border:none;
+  cursor:pointer;transition:background .25s;flex-shrink:0}
 .toggle-btn.on{background:linear-gradient(135deg,#00d4aa,#00d4ff);
-  box-shadow:0 0 16px rgba(0,212,170,.4)}
+  box-shadow:0 0 16px rgba(0,212,170,.45)}
 .toggle-btn.off{background:rgba(255,0,85,.25);border:1px solid rgba(255,0,85,.4)}
 .toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;
-  border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+  border-radius:50%;background:#fff;transition:transform .25s;
+  box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .toggle-btn.on::after{transform:translateX(26px)}
-.toggle-btn:disabled{opacity:.5;cursor:not-allowed}
+.toggle-btn:disabled{opacity:.4;cursor:not-allowed}
+.toggle-btn.busy::after{animation:pulse .7s infinite}
 
-.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--sub);
-  font-size:13px;gap:12px}
+/* Empty / Loading */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;
+  color:var(--sub);font-size:13px;gap:12px}
 .spinner{width:20px;height:20px;border-radius:50%;border:2px solid transparent;
   border-top-color:var(--gold);border-right-color:var(--cyan);animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
 .empty{text-align:center;padding:80px 20px;color:var(--dim)}
-.empty .ei{font-size:56px;margin-bottom:16px}
+.empty .ei{font-size:56px;margin-bottom:16px;opacity:.6}
 .empty p{font-size:14px}
 
+/* Toast */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
   background:linear-gradient(135deg,var(--bg4),var(--bg3));border:1px solid var(--border2);
   color:var(--text);font-size:13px;font-weight:600;padding:12px 26px;border-radius:24px;
-  z-index:999;opacity:0;transition:all .35s;pointer-events:none;
-  box-shadow:0 10px 36px rgba(0,0,0,.5)}
+  z-index:999;opacity:0;transition:all .35s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 10px 36px rgba(0,0,0,.6),0 0 20px rgba(0,212,255,.1)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.err{border-color:rgba(255,0,85,.5);color:var(--rose)}
+.toast.err{border-color:rgba(255,0,85,.5);color:var(--rose);
+  box-shadow:0 10px 36px rgba(0,0,0,.6),0 0 20px rgba(255,0,85,.2)}
+
+/* Responsive */
+@media (max-width:640px){
+  .dev-stats{display:none}
+  .dev-num{width:32px;height:32px;font-size:12px}
+  .toolbar{flex-direction:column;align-items:stretch}
+}
 </style>
 </head>
 <body>
 
-<!-- ========= SETUP SCREEN ========= -->
+<!-- ============= SETUP SCREEN ============= -->
 <div id="setup">
   <div class="setup-card">
     <div class="setup-h"><span class="gold-word">Device</span> Control Panel</div>
-    <div class="setup-sub">Firebase se connect karo aur apne devices ka online/offline status manage karo</div>
+    <div class="setup-sub">Firebase database connect karo — apne saare devices ka online/offline status dekho aur control karo</div>
 
     <label class="fl">Firebase Database URL</label>
     <input id="fbUrl" class="fi" placeholder="https://your-project.firebaseio.com" type="url"/>
@@ -151,34 +198,48 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
     <label class="fl">API Key (optional)</label>
     <input id="fbKey" class="fi" placeholder="Firebase API key (agar zaroori ho)" type="text"/>
 
-    <button type="button" class="cta" onclick="connect()">⚡ Connect →</button>
-
-    <div id="serr" style="color:var(--rose);font-size:12px;text-align:center;margin-top:14px;
-      display:none;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);
-      padding:10px 14px;border-radius:9px"></div>
+    <button type="button" class="cta" onclick="connect()">⚡ Connect to Firebase →</button>
+    <div class="s-err" id="serr"></div>
   </div>
 </div>
 
-<!-- ========= MAIN PANEL ========= -->
+<!-- ============= MAIN PANEL ============= -->
 <div id="panel">
   <div class="tb">
     <div class="tb-logo"><span class="tb-gl">Device</span> Panel</div>
     <div class="tb-pills">
-      <span class="pill p-t" id="pillTot">—</span>
-      <span class="pill p-on" id="pillOn">—</span>
-      <span class="pill p-off" id="pillOff">—</span>
+      <span class="pill p-t" id="pillTot">Total: 0</span>
+      <span class="pill p-on" id="pillOn">On: 0</span>
+      <span class="pill p-off" id="pillOff">Off: 0</span>
     </div>
     <div class="tb-spacer"></div>
-    <button class="tb-btn" onclick="loadDevices()">↻ Refresh</button>
-    <button class="tb-btn" onclick="disconnect()">Disconnect</button>
+    <button class="tb-btn refresh-btn" id="refreshBtn" onclick="manualRefresh()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      Refresh
+    </button>
+    <button class="tb-btn" onclick="disconnect()" style="color:var(--rose);border-color:rgba(255,0,85,.3)">Disconnect</button>
   </div>
 
   <div class="body">
     <div class="main">
       <div class="tab-body">
-        <div class="sec-hdr">Devices — Live Status</div>
-        <div id="devGrid" class="dev-grid">
-          <div class="loading"><div class="spinner"></div> Loading...</div>
+        <div class="toolbar">
+          <div class="search-box">
+            <span style="color:var(--dim)">🔍</span>
+            <input id="searchInput" placeholder="Device search karo (name, ID, phone)..." oninput="renderDevices()"/>
+          </div>
+          <button class="filter-btn active" id="fAll" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" id="fOn" onclick="setFilter('online')">🟢 Online</button>
+          <button class="filter-btn" id="fOff" onclick="setFilter('offline')">🔴 Offline</button>
+        </div>
+
+        <div class="sec-hdr" id="secHdr">Devices</div>
+        <div id="devList" class="dev-list">
+          <div class="loading"><div class="spinner"></div> Devices load ho rahe hain...</div>
         </div>
       </div>
     </div>
@@ -188,14 +249,21 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
 <div class="toast" id="toastEl"></div>
 
 <script>
-// ============ STATE ============
+// ============================================================
+// STATE
+// ============================================================
 let FB_URL = '';
 let FB_KEY = '';
-let devices = [];
+let allDevices = [];        // raw device objects
+let displayDevices = [];    // filtered + sorted
 let pollTimer = null;
+let filterMode = 'all';     // 'all' | 'online' | 'offline'
+let busyIds = new Set();    // toggle in-progress
 
-// ============ CONNECT ============
-function connect() {
+// ============================================================
+// CONNECT
+// ============================================================
+async function connect() {
   const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/, '');
   const key = document.getElementById('fbKey').value.trim();
   const err = document.getElementById('serr');
@@ -207,37 +275,38 @@ function connect() {
   }
 
   err.style.display = 'none';
-  FB_URL = url;
-  FB_KEY = key;
 
-  // Test connection
-  fetch(FB_URL + '/devices.json' + (FB_KEY ? '?auth=' + FB_KEY : ''))
-    .then(r => {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(() => {
-      document.getElementById('setup').style.display = 'none';
-      document.getElementById('panel').classList.add('open');
-      loadDevices();
-      startPolling();
-      toast('Connected ✓');
-    })
-    .catch(e => {
-      err.textContent = 'Connection failed — URL/key check karo (' + e.message + ')';
-      err.style.display = 'block';
-    });
+  try {
+    const res = await fetch(url + '/devices.json' + (key ? '?auth=' + key : ''));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    await res.json();
+
+    FB_URL = url;
+    FB_KEY = key;
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('panel').classList.add('open');
+
+    await loadDevices();
+    startPolling();
+    toast('✓ Connected');
+  } catch (e) {
+    err.textContent = 'Connection failed — URL/key check karo (' + e.message + ')';
+    err.style.display = 'block';
+  }
 }
 
 function disconnect() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   FB_URL = ''; FB_KEY = '';
-  devices = [];
+  allDevices = []; displayDevices = [];
+  busyIds.clear();
   document.getElementById('setup').style.display = 'flex';
   document.getElementById('panel').classList.remove('open');
 }
 
-// ============ LOAD DEVICES ============
+// ============================================================
+// LOAD DEVICES
+// ============================================================
 async function loadDevices() {
   if (!FB_URL) return;
   try {
@@ -245,111 +314,155 @@ async function loadDevices() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
-    devices = [];
+    allDevices = [];
     if (data && typeof data === 'object') {
       Object.keys(data).forEach(id => {
         const d = data[id];
         if (!d || typeof d !== 'object') return;
-        devices.push({
+        allDevices.push({
           id: id,
-          name: d.name || d.deviceName || d.model || id,
-          phone: d.phone || d.mobNo || '—',
-          battery: d.batteryRaw != null ? d.batteryRaw : (d.batteryNum != null ? d.batteryNum + '%' : '—'),
-          actualStatus: !!d.status,           // device khud jo report kar raha hai
-          adminStatus: d.adminStatus || null, // admin ne jo set kiya
+          name: d.name || d.deviceName || d.model || ('Device ' + id.slice(0, 6)),
+          phone: d.phone || d.mobNo || d.simNumber || '—',
+          battery: d.batteryRaw != null ? String(d.batteryRaw) : (d.batteryNum != null ? d.batteryNum + '%' : '—'),
+          actualStatus: !!d.status,
+          adminStatus: d.adminStatus || null,
         });
       });
-      // Newest first (id usually timestamp-based)
-      devices.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+      // Sort: forced/actual online first, then by id desc
+      allDevices.sort((a, b) => {
+        const aOn = a.adminStatus !== null ? a.adminStatus === 'online' : a.actualStatus;
+        const bOn = b.adminStatus !== null ? b.adminStatus === 'online' : b.actualStatus;
+        if (aOn !== bOn) return aOn ? -1 : 1;
+        return String(b.id).localeCompare(String(a.id));
+      });
     }
     renderDevices();
     renderStats();
   } catch (e) {
+    console.error('Load failed:', e);
     toast('Load failed: ' + e.message, true);
   }
 }
 
 function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(loadDevices, 5000); // har 5 sec refresh
+  pollTimer = setInterval(() => {
+    if (document.getElementById('panel').classList.contains('open')) {
+      loadDevices();
+    }
+  }, 5000);
 }
 
-// ============ RENDER ============
+// ============================================================
+// RENDER
+// ============================================================
 function renderDevices() {
-  const grid = document.getElementById('devGrid');
+  const list = document.getElementById('devList');
+  const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
-  if (devices.length === 0) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ei">📱</div><p>Koi device nahi mila</p></div>';
+  // Filter
+  let filtered = allDevices.filter(d => {
+    const shownOnline = d.adminStatus !== null ? d.adminStatus === 'online' : d.actualStatus;
+    if (filterMode === 'online' && !shownOnline) return false;
+    if (filterMode === 'offline' && shownOnline) return false;
+    if (search) {
+      const hay = (d.name + ' ' + d.id + ' ' + d.phone).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  displayDevices = filtered;
+
+  // Update section header
+  document.getElementById('secHdr').textContent =
+    'Devices (' + filtered.length + (filtered.length !== allDevices.length ? ' of ' + allDevices.length : '') + ')';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="ei">📱</div><p>' +
+      (search ? 'Koi device search se match nahi hua' : (allDevices.length === 0 ? 'Koi device nahi mila' : 'Filter ke hisaab se koi device nahi')) +
+      '</p></div>';
     return;
   }
 
-  grid.innerHTML = devices.map(d => {
-    // Jo panel mein toggle dikhta hai — adminStatus priority, warna actual
-    const shownOnline = d.adminStatus !== null
-      ? (d.adminStatus === 'online')
-      : d.actualStatus;
+  list.innerHTML = filtered.map((d, idx) => {
+    const shownOnline = d.adminStatus !== null ? d.adminStatus === 'online' : d.actualStatus;
     const isForced = d.adminStatus !== null;
+    const isBusy = busyIds.has(d.id);
+    const serial = idx + 1;  // 1, 2, 3...
 
     return `
-    <div class="dev-card ${shownOnline ? 'online' : 'offline'}">
-      <div class="dev-head">
-        <div class="dev-av">📱<div class="av-dot ${shownOnline ? 'on' : 'off'}"></div></div>
-        <div class="dev-meta">
-          <div class="dev-n">${esc(d.name)}</div>
-          <div class="dev-id">${esc(d.id)}</div>
+    <div class="dev-row ${shownOnline ? 'online' : 'offline'}">
+      <div class="dev-num">${serial}</div>
+
+      <div class="dev-meta">
+        <div class="dev-n">${esc(d.name)}</div>
+        <div class="dev-id">${esc(d.id)}</div>
+      </div>
+
+      <div class="dev-stats">
+        <div class="dstat">
+          <div class="dstat-l">Phone</div>
+          <div class="dstat-v">${esc(d.phone)}</div>
+        </div>
+        <div class="dstat">
+          <div class="dstat-l">Battery</div>
+          <div class="dstat-v">${esc(d.battery)}</div>
+        </div>
+        <div class="dstat">
+          <div class="dstat-l">Status</div>
+          <div class="dstat-v ${shownOnline ? 'on' : 'off'}">${shownOnline ? 'Online' : 'Offline'}${isForced ? ' 🔒' : ''}</div>
         </div>
       </div>
 
-      <div class="dev-info">
-        <div class="info-item">
-          <div class="info-l">Phone</div>
-          <div class="info-v">${esc(d.phone)}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-l">Battery</div>
-          <div class="info-v">${esc(String(d.battery))}</div>
-        </div>
-        <div class="info-item">
-          <div class="info-l">Actual</div>
-          <div class="info-v" style="color:${d.actualStatus ? 'var(--mint)' : 'var(--rose)'}">
-            ${d.actualStatus ? 'Online' : 'Offline'}
-          </div>
-        </div>
-      </div>
-
-      <div class="toggle-row">
-        <div class="toggle-lbl">
-          Panel Status
-          ${isForced ? '<span class="actual">(forced)</span>' : ''}
-        </div>
-        <button class="toggle-btn ${shownOnline ? 'on' : 'off'}"
+      <div class="toggle-wrap">
+        <div class="toggle-lbl">${shownOnline ? 'ON' : 'OFF'}</div>
+        <button class="toggle-btn ${shownOnline ? 'on' : 'off'} ${isBusy ? 'busy' : ''}"
+                ${isBusy ? 'disabled' : ''}
                 onclick="toggleDevice('${esc(d.id)}', ${shownOnline})"
-                title="Click to toggle ${shownOnline ? 'Offline' : 'Online'}">
-        </button>
+                title="Click to ${shownOnline ? 'force OFFLINE' : 'force ONLINE'}"></button>
       </div>
     </div>`;
   }).join('');
 }
 
 function renderStats() {
-  const tot = devices.length;
-  const on = devices.filter(d => d.adminStatus !== null
-    ? d.adminStatus === 'online'
-    : d.actualStatus).length;
-  const off = tot - on;
+  const tot = allDevices.length;
+  let on = 0;
+  allDevices.forEach(d => {
+    const shownOnline = d.adminStatus !== null ? d.adminStatus === 'online' : d.actualStatus;
+    if (shownOnline) on++;
+  });
   document.getElementById('pillTot').textContent = 'Total: ' + tot;
   document.getElementById('pillOn').textContent  = 'On: ' + on;
-  document.getElementById('pillOff').textContent = 'Off: ' + off;
+  document.getElementById('pillOff').textContent = 'Off: ' + (tot - on);
 }
 
-// ============ TOGGLE ============
+// ============================================================
+// FILTER
+// ============================================================
+function setFilter(mode) {
+  filterMode = mode;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('f' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+  renderDevices();
+}
+
+// ============================================================
+// TOGGLE ONLINE / OFFLINE
+// ============================================================
 async function toggleDevice(id, currentShownOnline) {
-  if (!FB_URL) return;
+  if (!FB_URL || busyIds.has(id)) return;
 
   const newStatus = currentShownOnline ? 'offline' : 'online';
+  busyIds.add(id);
+
+  // Optimistic UI update
+  const d = allDevices.find(x => x.id === id);
+  if (d) d.adminStatus = newStatus;
+  renderDevices();
 
   try {
-    // Firebase mein adminStatus set karo
     const url = FB_URL + '/devices/' + id + '/adminStatus.json' + (FB_KEY ? '?auth=' + FB_KEY : '');
     const res = await fetch(url, {
       method: 'PUT',
@@ -358,31 +471,63 @@ async function toggleDevice(id, currentShownOnline) {
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    toast(`Device ${id.slice(0,8)}… → ${newStatus.toUpperCase()} ✓`);
-    loadDevices();
+    toast(`✓ Device ${id.slice(0, 8)}… → ${newStatus.toUpperCase()}`);
   } catch (e) {
+    // Rollback
+    if (d) d.adminStatus = currentShownOnline ? 'online' : 'offline';
     toast('Toggle failed: ' + e.message, true);
+  } finally {
+    busyIds.delete(id);
+    renderDevices();
+    renderStats();
+    // Reload after a short delay to sync
+    setTimeout(() => loadDevices(), 500);
   }
 }
 
-// ============ HELPERS ============
+// ============================================================
+// MANUAL REFRESH
+// ============================================================
+async function manualRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+  try {
+    await loadDevices();
+    toast('✓ Refreshed');
+  } finally {
+    setTimeout(() => {
+      btn.classList.remove('spinning');
+      btn.disabled = false;
+    }, 400);
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
 function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function toast(msg, isErr) {
   const el = document.getElementById('toastEl');
   el.textContent = msg;
   el.className = 'toast show' + (isErr ? ' err' : '');
-  setTimeout(() => { el.className = 'toast' + (isErr ? ' err' : ''); }, 2500);
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = 'toast' + (isErr ? ' err' : ''); }, 2500);
 }
 
-// Enter key pe connect
+// Enter key
 document.getElementById('fbUrl').addEventListener('keydown', e => {
+  if (e.key === 'Enter') connect();
+});
+document.getElementById('fbKey').addEventListener('keydown', e => {
   if (e.key === 'Enter') connect();
 });
 </script>
