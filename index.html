@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Device Control Panel</title>
+<title>Device Panel - Pro</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Share+Tech+Mono&display=swap');
 :root{
-  --bg:#020205; --bg2:#0a0514; --bg3:#120a22; --bg4:#1a0f30; --bg5:#221440;
+  --bg:#020205; --bg2:#0a0514; --bg3:#120a22; --bg4:#1a0f30;
   --gold:#a020f0; --mint:#00d4aa; --rose:#ff0055; --cyan:#00d4ff;
   --text:#f0f0ff; --sub:#8a9bb4; --dim:#4a5b74;
   --border:rgba(160,32,240,.2); --border2:rgba(160,32,240,.4);
@@ -17,214 +17,129 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
-
-@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* SETUP */
 #setup{display:flex;align-items:center;justify-content:center;height:100vh;padding:24px;
-  background:radial-gradient(circle at 20% 30%,rgba(160,32,240,.18),transparent 55%),
-             radial-gradient(circle at 80% 70%,rgba(0,212,255,.12),transparent 55%),var(--bg)}
-.setup-card{background:rgba(10,5,20,.88);backdrop-filter:blur(18px);
-  border:1px solid var(--border2);border-radius:24px;padding:42px 40px;width:100%;max-width:460px;
-  box-shadow:0 40px 100px rgba(0,0,0,.9);position:relative;overflow:hidden;animation:fadeUp .5s}
-.setup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,#a020f0,#00d4ff,#a020f0);background-size:200%;
-  animation:shimmer 3s linear infinite}
-.setup-h{font-size:28px;font-weight:800;margin-bottom:8px}
-.gold-word{background:linear-gradient(90deg,#00d4ff,#a020f0,#00d4ff);background-size:200%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 2.5s}
-.setup-sub{font-size:13px;color:var(--sub);margin-bottom:26px;line-height:1.6}
-.fl{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;
-  text-transform:uppercase;color:var(--sub);margin-bottom:7px}
-.fi{width:100%;padding:13px 16px;background:rgba(16,28,46,.8);
-  border:1px solid rgba(0,212,255,.15);border-radius:12px;color:var(--text);
-  font-family:'Exo 2',sans-serif;font-size:14px;outline:none;margin-bottom:16px;transition:border-color .2s}
-.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
-.fi::placeholder{color:var(--dim)}
-.cta{width:100%;padding:15px;border:none;border-radius:12px;color:#020810;
-  font-family:'Exo 2',sans-serif;font-size:15px;font-weight:800;cursor:pointer;
-  background:linear-gradient(135deg,#22e5ff,#00d4ff,#0088ff);
-  box-shadow:0 6px 30px rgba(0,212,255,.4);transition:all .25s}
-.cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,212,255,.55)}
-.s-err{color:var(--rose);font-size:12px;text-align:center;margin-top:14px;
-  display:none;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.25);
-  padding:10px 14px;border-radius:9px}
+  background:radial-gradient(circle at 20% 30%,rgba(160,32,240,.18),transparent 55%), var(--bg)}
+.setup-card{background:rgba(10,5,20,.9);border:1px solid var(--border2);border-radius:20px;
+  padding:40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.9);animation:fadeUp .5s}
+.fi{width:100%;padding:14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;color:#fff;font-size:14px;margin-bottom:16px;outline:none}
+.fi:focus{border-color:var(--gold)}
+.cta{width:100%;padding:14px;border:none;border-radius:10px;color:#000;
+  font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#00d4ff,#0088ff)}
+.s-err{color:var(--rose);font-size:12px;margin-top:12px;display:none;text-align:center}
 
 /* PANEL */
 #panel{display:none;height:100vh;flex-direction:column}
 #panel.open{display:flex}
-.tb{background:linear-gradient(90deg,#080d14,#0c121c);border-bottom:1px solid var(--border);
-  height:58px;display:flex;align-items:center;gap:14px;padding:0 20px;flex-shrink:0;position:relative}
-.tb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(0,212,255,.7),rgba(160,32,240,.5),transparent)}
-.tb-logo{font-size:17px;font-weight:800}
-.tb-gl{background:linear-gradient(90deg,#00d4ff,#a020f0,#00d4ff);background-size:200%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s}
-.tb-pills{display:flex;gap:8px;margin-left:16px}
-.pill{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px}
+.tb{background:var(--bg2);border-bottom:1px solid var(--border);height:60px;
+  display:flex;align-items:center;gap:16px;padding:0 20px;flex-shrink:0}
+.tb-logo{font-size:18px;font-weight:800;color:var(--cyan)}
+.tb-pills{display:flex;gap:8px;margin-left:20px}
+.pill{font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px}
 .p-t{background:rgba(0,212,255,.12);color:var(--cyan)}
 .p-on{background:rgba(0,212,170,.12);color:var(--mint)}
 .p-off{background:rgba(255,0,85,.1);color:var(--rose)}
 .tb-spacer{flex:1}
+
+/* NOTIFICATION TOGGLE */
+.notif-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);cursor:pointer}
+.notif-toggle input{width:16px;height:16px;accent-color:var(--mint)}
+
 .tb-btn{height:34px;padding:0 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:8px;color:var(--sub);font-family:'Exo 2',sans-serif;font-size:12px;
-  font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
-.tb-btn:hover{color:var(--text);border-color:var(--border2);background:var(--bg4)}
-.tb-btn.refresh-btn{color:var(--cyan);border-color:rgba(0,212,255,.3)}
-.tb-btn.spinning svg{animation:spin .6s linear infinite}
+  border-radius:8px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer}
+.tb-btn:hover{color:#fff;border-color:var(--border2)}
 
 .body{display:flex;flex:1;overflow:hidden}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.tab-body{flex:1;overflow-y:auto;padding:24px}
+.main{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:24px}
 
-.toolbar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
-.search-box{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;
-  background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
-.search-box:focus-within{border-color:var(--gold)}
-.search-box input{flex:1;background:none;border:none;outline:none;color:var(--text);
-  font-family:'Exo 2',sans-serif;font-size:13px}
-.search-box input::placeholder{color:var(--dim)}
-.filter-btn{padding:9px 16px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:10px;color:var(--sub);font-family:'Exo 2',sans-serif;font-size:12px;
-  font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
+/* TOOLBAR */
+.toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.search-box{flex:1;min-width:200px;display:flex;align-items:center;background:var(--bg2);
+  border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.search-box input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:13px}
+.filter-btn{padding:10px 16px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer}
 .filter-btn.active{background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:var(--cyan)}
-.filter-btn:hover:not(.active){color:var(--text);border-color:var(--border2)}
 
-.sec-hdr{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--sub);margin-bottom:16px;display:flex;align-items:center;gap:12px}
-.sec-hdr::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
-
-/* ALL DEVICES LIST */
+/* DEVICE LIST */
 .dev-list{display:flex;flex-direction:column;gap:10px}
 .dev-row{background:linear-gradient(145deg,var(--bg3),var(--bg2));
   border:1px solid var(--border);border-radius:14px;padding:16px 18px;
-  display:flex;align-items:center;gap:14px;position:relative;transition:all .15s;
-  animation:fadeUp .25s}
-.dev-row:hover{border-color:var(--border2);transform:translateX(3px);
-  box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  display:flex;align-items:center;gap:14px;animation:fadeUp .2s}
 .dev-row.online{border-left:3px solid var(--mint)}
 .dev-row.offline{border-left:3px solid var(--rose)}
-
-/* REAL STATUS BADGE */
-.real-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;margin-left:6px}
-.rs-on{background:rgba(0,212,170,.15);color:var(--mint);border:1px solid rgba(0,212,170,.3)}
-.rs-off{background:rgba(255,0,85,.15);color:var(--rose);border:1px solid rgba(255,0,85,.3)}
-
-.dev-num{width:38px;height:38px;border-radius:10px;
-  background:linear-gradient(135deg,var(--bg4),var(--bg5));
-  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-family:'Share Tech Mono',monospace;font-size:15px;font-weight:700;
-  color:var(--cyan);flex-shrink:0}
-
+.dev-num{width:38px;height:38px;border-radius:10px;background:var(--bg4);
+  display:flex;align-items:center;justify-content:center;font-family:monospace;
+  font-size:15px;font-weight:700;color:var(--cyan);flex-shrink:0}
 .dev-meta{flex:1;min-width:0}
-.dev-n{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-.dev-id{font-size:10px;color:var(--dim);font-family:'Share Tech Mono',monospace;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.dev-stats{display:flex;gap:18px;flex-shrink:0;margin-right:6px}
-.dstat{text-align:left;min-width:70px}
-.dstat-l{font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.dstat-v{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.dev-n{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
+.dev-id{font-size:10px;color:var(--dim);font-family:monospace}
+.dev-stats{display:flex;gap:16px;margin-right:10px}
+.dstat-v{font-size:12px;font-weight:700;color:var(--sub)}
 .dstat-v.on{color:var(--mint)}
 .dstat-v.off{color:var(--rose)}
 
-/* TOGGLE */
-.toggle-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
-.toggle-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
-.toggle-btn{position:relative;width:56px;height:30px;border-radius:30px;border:none;
+.toggle-btn{position:relative;width:50px;height:28px;border-radius:30px;border:none;
   cursor:pointer;transition:background .2s;flex-shrink:0}
-.toggle-btn.on{background:linear-gradient(135deg,#00d4aa,#00d4ff); box-shadow:0 0 16px rgba(0,212,170,.45)}
-.toggle-btn.off{background:rgba(255,0,85,.25);border:1px solid rgba(255,0,85,.4)}
-.toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;
-  border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 6px rgba(0,0,0,.35)}
-.toggle-btn.on::after{transform:translateX(26px)}
+.toggle-btn.on{background:var(--mint)}
+.toggle-btn.off{background:rgba(255,0,85,.3)}
+.toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;
+  border-radius:50%;background:#fff;transition:transform .2s}
+.toggle-btn.on::after{transform:translateX(22px)}
 
-.save-btn{padding:9px 14px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);
-  border-radius:8px;color:var(--mint);font-family:'Exo 2',sans-serif;font-size:11px;
-  font-weight:700;cursor:pointer;transition:all .15s;flex-shrink:0}
-.save-btn:hover{background:rgba(0,212,170,.22);border-color:rgba(0,212,170,.5)}
-.save-btn:disabled{opacity:.4;cursor:not-allowed}
-.save-btn.saved{background:rgba(0,212,170,.25);color:#fff}
-
-.loading{display:flex;align-items:center;justify-content:center;padding:60px;
-  color:var(--sub);font-size:13px;gap:12px}
-.spinner{width:20px;height:20px;border-radius:50%;border:2px solid transparent;
-  border-top-color:var(--gold);border-right-color:var(--cyan);animation:spin .8s linear infinite}
-.empty{text-align:center;padding:80px 20px;color:var(--dim)}
-.empty .ei{font-size:56px;margin-bottom:16px;opacity:.6}
-.empty p{font-size:14px}
-
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:linear-gradient(135deg,var(--bg4),var(--bg3));border:1px solid var(--border2);
-  color:var(--text);font-size:13px;font-weight:600;padding:12px 26px;border-radius:24px;
-  z-index:999;opacity:0;transition:all .35s;pointer-events:none;white-space:nowrap;
-  box-shadow:0 10px 36px rgba(0,0,0,.6)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.err{border-color:rgba(255,0,85,.5);color:var(--rose)}
-.toast.success{border-color:rgba(0,212,170,.5);color:var(--mint)}
-
-@media (max-width:720px){
-  .dev-stats{display:none}
-  .dev-num{width:32px;height:32px;font-size:12px}
-  .toolbar{flex-direction:column;align-items:stretch}
-}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--bg4);border:1px solid var(--border2);color:#fff;
+  padding:12px 24px;border-radius:12px;z-index:999;opacity:0;transition:all .3s}
+.toast.show{opacity:1}
+.toast.err{border-color:var(--rose);color:var(--rose)}
 </style>
 </head>
 <body>
 
 <div id="setup">
   <div class="setup-card">
-    <div class="setup-h"><span class="gold-word">Device</span> Panel</div>
-    <div class="setup-sub">Firebase URL dalo aur saare devices ka real status dekho.</div>
-    <label class="fl">Firebase Database URL</label>
+    <h2 style="margin-bottom:10px;color:var(--cyan)">Device Panel Pro</h2>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:20px">Firebase connect karo aur saare devices manage karo</p>
     <input id="fbUrl" class="fi" placeholder="https://your-project.firebaseio.com" type="url"/>
-    <label class="fl">API Key (optional)</label>
-    <input id="fbKey" class="fi" placeholder="Firebase API key" type="text"/>
-    <button type="button" class="cta" onclick="connect()">⚡ Connect →</button>
+    <button class="cta" onclick="connect()">⚡ Connect</button>
     <div class="s-err" id="serr"></div>
   </div>
 </div>
 
 <div id="panel">
   <div class="tb">
-    <div class="tb-logo"><span class="tb-gl">Device</span> Panel</div>
+    <div class="tb-logo">Device Panel</div>
     <div class="tb-pills">
       <span class="pill p-t" id="pillTot">Total: 0</span>
-      <span class="pill p-on" id="pillOn">Real On: 0</span>
-      <span class="pill p-off" id="pillOff">Real Off: 0</span>
+      <span class="pill p-on" id="pillOn">On: 0</span>
+      <span class="pill p-off" id="pillOff">Off: 0</span>
     </div>
     <div class="tb-spacer"></div>
-    <button class="tb-btn refresh-btn" id="refreshBtn" onclick="manualRefresh()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <polyline points="1 20 1 14 7 14"></polyline>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-      </svg>
-      Refresh
-    </button>
-    <button class="tb-btn" onclick="disconnect()" style="color:var(--rose);border-color:rgba(255,0,85,.3)">Disconnect</button>
+    <!-- Notification Toggle -->
+    <label class="notif-toggle">
+      <input type="checkbox" id="notifToggle" onchange="toggleNotifications()" checked/>
+      🔔 Alerts (Auto)
+    </label>
+    <button class="tb-btn" onclick="manualRefresh()">↻ Refresh</button>
+    <button class="tb-btn" onclick="disconnect()" style="color:var(--rose)">Exit</button>
   </div>
+  
   <div class="body">
     <div class="main">
-      <div class="tab-body">
-        <div class="toolbar">
-          <div class="search-box">
-            <span style="color:var(--dim)">🔍</span>
-            <input id="searchInput" placeholder="Search device by name or ID..." oninput="renderDevices()"/>
-          </div>
-          <button class="filter-btn active" id="fAll" onclick="setFilter('all')">All Devices</button>
-          <button class="filter-btn" id="fOn" onclick="setFilter('online')">🟢 Real Online</button>
-          <button class="filter-btn" id="fOff" onclick="setFilter('offline')">🔴 Real Offline</button>
+      <div class="toolbar">
+        <div class="search-box">
+          <span>🔍</span>
+          <input id="searchInput" placeholder="Search device..." oninput="renderDevices()"/>
         </div>
-        <div class="sec-hdr" id="secHdr">All Devices</div>
-        <div id="devList" class="dev-list">
-          <div class="loading"><div class="spinner"></div> Loading...</div>
-        </div>
+        <button class="filter-btn active" id="fAll" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" id="fOn" onclick="setFilter('online')">🟢 Online</button>
+        <button class="filter-btn" id="fOff" onclick="setFilter('offline')">🔴 Offline</button>
       </div>
+      <div id="devList" class="dev-list"></div>
     </div>
   </div>
 </div>
@@ -232,136 +147,111 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
 <div class="toast" id="toastEl"></div>
 
 <script>
-let FB_URL = '', FB_KEY = '', allDevices = [], pollTimer = null, filterMode = 'all';
+let FB_URL = '', allDevices = [], pollTimer = null, filterMode = 'all';
+let prevStatus = {}; // For notifications
+let notifEnabled = true;
 
+// CONNECT
 async function connect() {
   const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/, '');
-  const key = document.getElementById('fbKey').value.trim();
-  const err = document.getElementById('serr');
-
-  if (!url || !url.startsWith('http')) {
-    err.textContent = 'Sahi Firebase URL daalo (https://... se)';
-    err.style.display = 'block';
-    return;
-  }
-  err.style.display = 'none';
-
+  if (!url) return;
   try {
-    const res = await fetch(url + '/devices.json' + (key ? '?auth=' + key : ''));
+    const res = await fetch(url + '/devices.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    
-    FB_URL = url; FB_KEY = key;
+    FB_URL = url;
     document.getElementById('setup').style.display = 'none';
     document.getElementById('panel').classList.add('open');
-    
     await loadDevices();
     startPolling();
-    toast('✓ Connected', 'success');
   } catch (e) {
-    err.textContent = 'Connection failed: ' + e.message;
-    err.style.display = 'block';
+    document.getElementById('serr').textContent = 'Failed: ' + e.message;
+    document.getElementById('serr').style.display = 'block';
   }
 }
 
-function disconnect() {
+// AUTO REFRESH (Auto-Mission)
+function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
-  FB_URL = ''; FB_KEY = ''; allDevices = [];
-  document.getElementById('setup').style.display = 'flex';
-  document.getElementById('panel').classList.remove('open');
+  pollTimer = setInterval(loadDevices, 3000); // Har 3 second
 }
 
+// LOAD DEVICES (No Limit)
 async function loadDevices() {
   if (!FB_URL) return;
   try {
-    const res = await fetch(FB_URL + '/devices.json' + (FB_KEY ? '?auth=' + FB_KEY : ''));
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const res = await fetch(FB_URL + '/devices.json');
     const data = await res.json();
+    if (!data) return;
 
-    allDevices = [];
-    if (data && typeof data === 'object') {
-      Object.keys(data).forEach(id => {
-        const d = data[id];
-        if (!d || typeof d !== 'object') return;
-        
-        allDevices.push({
-          id: id,
-          name: d.name || d.deviceName || d.model || ('Device ' + id.slice(0, 6)),
-          phone: d.phone || d.mobNo || '—',
-          battery: d.batteryRaw != null ? String(d.batteryRaw) : (d.batteryNum != null ? d.batteryNum + '%' : '—'),
-          realStatus: !!d.status, // Asli status jo device bhej raha hai
-          adminStatus: d.adminStatus || null
-        });
-      });
+    let tempDevices = [];
+    Object.keys(data).forEach(id => {
+      const d = data[id];
+      if (!d || typeof d !== 'object') return;
       
-      // Sort: Online first, then by ID
-      allDevices.sort((a, b) => {
-        if (a.realStatus !== b.realStatus) return a.realStatus ? -1 : 1;
-        return String(b.id).localeCompare(String(a.id));
+      const isOnline = !!d.status;
+      
+      // 🔔 NOTIFICATION LOGIC
+      if (notifEnabled && prevStatus[id] !== undefined) {
+        if (prevStatus[id] === false && isOnline === true) {
+          toast(`🟢 ${d.name || id} is now ONLINE`, 'success');
+        } else if (prevStatus[id] === true && isOnline === false) {
+          toast(`🔴 ${d.name || id} is now OFFLINE`, 'err');
+        }
+      }
+      prevStatus[id] = isOnline;
+
+      tempDevices.push({
+        id: id,
+        name: d.name || d.deviceName || ('Device ' + id.slice(0, 6)),
+        phone: d.phone || '—',
+        battery: d.batteryRaw || '—',
+        realStatus: isOnline
       });
-    }
+    });
+
+    // Sort by Online first
+    tempDevices.sort((a, b) => a.realStatus === b.realStatus ? 0 : a.realStatus ? -1 : 1);
+    allDevices = tempDevices;
+
     renderDevices();
     renderStats();
-  } catch (e) {
-    toast('Load failed: ' + e.message, true);
-  }
+  } catch (e) { console.error(e); }
 }
 
-function startPolling() {
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(loadDevices, 5000); // Auto-refresh har 5 sec
-}
-
+// RENDER UI
 function renderDevices() {
   const list = document.getElementById('devList');
-  const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  
   let filtered = allDevices.filter(d => {
     if (filterMode === 'online' && !d.realStatus) return false;
     if (filterMode === 'offline' && d.realStatus) return false;
-    if (search && !(d.name + ' ' + d.id).toLowerCase().includes(search)) return false;
+    if (search && !(d.name + d.id).toLowerCase().includes(search)) return false;
     return true;
   });
 
-  document.getElementById('secHdr').textContent = 'All Devices (' + filtered.length + ')';
-
   if (filtered.length === 0) {
-    list.innerHTML = '<div class="empty"><div class="ei">📱</div><p>No devices found</p></div>';
+    list.innerHTML = '<p style="text-align:center;color:var(--dim);padding:20px">No devices found</p>';
     return;
   }
 
   let html = '';
   filtered.forEach((d, idx) => {
-    const serial = idx + 1;
-    const isOnline = d.realStatus;
-
     html += `
-    <div class="dev-row ${isOnline ? 'online' : 'offline'}">
-      <div class="dev-num">${serial}</div>
+    <div class="dev-row ${d.realStatus ? 'online' : 'offline'}">
+      <div class="dev-num">${idx + 1}</div>
       <div class="dev-meta">
-        <div class="dev-n">${esc(d.name)}</div>
-        <div class="dev-id">${esc(d.id)}</div>
+        <div class="dev-n">${d.name}</div>
+        <div class="dev-id">${d.id}</div>
       </div>
       <div class="dev-stats">
-        <div class="dstat">
-          <div class="dstat-l">Phone</div>
-          <div class="dstat-v">${esc(d.phone)}</div>
-        </div>
-        <div class="dstat">
-          <div class="dstat-l">Battery</div>
-          <div class="dstat-v">${esc(d.battery)}</div>
-        </div>
-        <div class="dstat">
-          <div class="dstat-l">Real Status</div>
-          <div class="dstat-v ${isOnline ? 'on' : 'off'}">
-            ${isOnline ? 'Online' : 'Offline'}
-            <span class="real-status ${isOnline ? 'rs-on' : 'rs-off'}">REAL</span>
-          </div>
+        <div class="dstat-v">${d.phone}</div>
+        <div class="dstat-v">${d.battery}</div>
+        <div class="dstat-v ${d.realStatus ? 'on' : 'off'}">
+          ${d.realStatus ? 'Online' : 'Offline'}
         </div>
       </div>
-      <div class="toggle-wrap">
-        <div class="toggle-lbl">Action</div>
-        <button class="toggle-btn ${isOnline ? 'on' : 'off'}" onclick="toggleDevice('${esc(d.id)}', ${isOnline})" title="Force ${isOnline ? 'Offline' : 'Online'}"></button>
-      </div>
+      <button class="toggle-btn ${d.realStatus ? 'on' : 'off'}" onclick="toggleDevice('${d.id}', ${d.realStatus})"></button>
     </div>`;
   });
   list.innerHTML = html;
@@ -371,10 +261,19 @@ function renderStats() {
   const tot = allDevices.length;
   const on = allDevices.filter(d => d.realStatus).length;
   document.getElementById('pillTot').textContent = 'Total: ' + tot;
-  document.getElementById('pillOn').textContent  = 'Real On: ' + on;
-  document.getElementById('pillOff').textContent = 'Real Off: ' + (tot - on);
+  document.getElementById('pillOn').textContent = 'On: ' + on;
+  document.getElementById('pillOff').textContent = 'Off: ' + (tot - on);
 }
 
+// TOGGLE
+async function toggleDevice(id, current) {
+  const newStatus = current ? 'offline' : 'online';
+  const url = FB_URL + '/devices/' + id + '/adminStatus.json';
+  await fetch(url, { method: 'PUT', body: JSON.stringify(newStatus) });
+  toast('Command sent to ' + id, 'success');
+}
+
+// FILTER
 function setFilter(mode) {
   filterMode = mode;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -382,47 +281,28 @@ function setFilter(mode) {
   renderDevices();
 }
 
-async function toggleDevice(id, currentStatus) {
-  if (!FB_URL) return;
-  const newStatus = currentStatus ? 'offline' : 'online';
-  
-  // UI instantly update karo
-  const dev = allDevices.find(x => x.id === id);
-  if (dev) { dev.realStatus = (newStatus === 'online'); renderDevices(); renderStats(); }
-
-  try {
-    const url = FB_URL + '/devices/' + id + '/adminStatus.json' + (FB_KEY ? '?auth=' + FB_KEY : '');
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newStatus)
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    toast('✓ Sent ' + newStatus.toUpperCase() + ' command to device', 'success');
-  } catch (e) {
-    toast('Failed: ' + e.message, true);
-    loadDevices(); // Rollback
-  }
+function toggleNotifications() {
+  notifEnabled = document.getElementById('notifToggle').checked;
 }
 
 async function manualRefresh() {
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  btn.disabled = true;
   await loadDevices();
-  toast('✓ Refreshed', 'success');
-  setTimeout(() => { btn.classList.remove('spinning'); btn.disabled = false; }, 400);
+  toast('Refreshed', 'success');
 }
 
-function esc(s) {
-  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function disconnect() {
+  if (pollTimer) clearInterval(pollTimer);
+  FB_URL = ''; allDevices = []; prevStatus = {};
+  document.getElementById('setup').style.display = 'flex';
+  document.getElementById('panel').classList.remove('open');
 }
+
 function toast(msg, type) {
   const el = document.getElementById('toastEl');
   el.textContent = msg;
-  el.className = 'toast show' + (type === 'success' ? ' success' : (type === 'err' ? ' err' : ''));
+  el.className = 'toast show ' + (type || '');
   clearTimeout(el._t);
-  el._t = setTimeout(() => { el.className = 'toast' + (type === 'success' ? ' success' : ''); }, 2500);
+  el._t = setTimeout(() => el.className = 'toast', 2500);
 }
 </script>
 </body>
