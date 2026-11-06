@@ -61,9 +61,8 @@
   <h2>🔥 Firebase Connection Setup</h2>
   <p class="subtitle" style="margin-bottom:0;">Ek baar setup karein — data upload + live sync automatic</p>
 
-  <!-- Yahan aap apna URL daalenge -->
   <label>Firebase Realtime Database URL</label>
-  <input type="text" id="dbUrl" placeholder="https://maxjoker98-d9bcb-default-rtdb.firebaseio.com" />
+  <input type="text" id="dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
 
   <label>Node Path</label>
   <input type="text" id="nodePath" value="All_User/Info" />
@@ -139,7 +138,7 @@ function showToast(msg, isError = false) {
   setTimeout(() => t.remove(), 3000);
 }
 
-// 🔥 SMART URL FIX 🔥
+// 🔥 SMART REGION AUTO-DETECT 🔥
 window.connectAndSetup = async function () {
   let rawUrl = document.getElementById('dbUrl').value.trim();
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
@@ -147,37 +146,70 @@ window.connectAndSetup = async function () {
 
   if (!rawUrl) { setStatusMsg('❌ URL khali hai.', 'error'); return; }
 
-  // 1. Agar https:// nahi hai to lagao
+  // URL Clean karo
   if (!rawUrl.startsWith('http')) { rawUrl = 'https://' + rawUrl; }
-  // 2. Aakhir se slash (/) hatao
-  rawUrl = rawUrl.replace(/\/$/, "");
-
-  // 3. FORCE FIX: Agar URL adhura hai (jaise sirf maxjoker98 tak hai), to use pura banao
-  if (rawUrl.includes('-default-rtdb')) {
-      if (!rawUrl.includes('.firebaseio.com') && !rawUrl.includes('.firebasedatabase.app')) {
-          if (rawUrl.endsWith('-default-rtdb')) {
-              rawUrl = rawUrl + '.firebaseio.com';
-          } else {
-              // Agar bich me kuch cut gaya hai
-              rawUrl = rawUrl.split('-default-rtdb')[0] + '-default-rtdb.firebaseio.com';
-          }
-      }
+  rawUrl = rawUrl.replace(/\/$/, ""); 
+  let baseUrl = rawUrl.split('/')[2]; // Sirf domain nikal lo
+  
+  // 2 possible URLs banayenge: ek US ka, ek Asia ka
+  let projectId = baseUrl.replace('.firebaseio.com', '').replace('.asia-southeast1.firebasedatabase.app', '').replace('.firebasedatabase.app', '');
+  if(!projectId.includes('-default-rtdb')) {
+      projectId = projectId + '-default-rtdb';
+  } else {
+      projectId = projectId.split('-default-rtdb')[0] + '-default-rtdb';
   }
+
+  const urlsToTry = [
+    `https://${projectId}.firebaseio.com`,
+    `https://${projectId}.asia-southeast1.firebasedatabase.app`
+  ];
 
   btn.disabled = true;
   btn.textContent = 'Connecting...';
-  setStatusMsg('⏳ Trying URL: <br><b>' + rawUrl + '</b>', 'info');
+  setStatusMsg('⏳ Checking database region...', 'info');
+
+  let connectedSuccessfully = false;
+  let lastError = '';
+
+  for (let url of urlsToTry) {
+    try {
+      if (app) { try { await deleteApp(app); } catch (e) {} }
+      app = initializeApp({ databaseURL: url }, 'ctrl-' + Date.now());
+      db = getDatabase(app);
+      
+      // 5 second timeout ke sath check karo
+      await Promise.race([
+        get(ref(db, '.info/connected')),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+      ]);
+
+      // Agar yahan tak aaya matlab connect ho gaya!
+      connectedSuccessfully = true;
+      rawUrl = url;
+      break;
+    } catch (e) {
+      lastError = e.message;
+      // Agar permission denied aaya, matlab URL sahi hai bas rules nahi hain
+      if (String(e.message).includes('permission') || String(e.message).includes('PERMISSION_DENIED')) {
+        connectedSuccessfully = true;
+        rawUrl = url;
+        break;
+      }
+    }
+  }
+
+  if (!connectedSuccessfully) {
+    setStatusMsg('❌ Database se connect nahi ho paya. <br>Error: ' + lastError + '<br><br>Kripya check karein ki aapne Firebase mein "Realtime Database" create kiya hai ya nahi.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Connect & Upload Data';
+    return;
+  }
 
   try {
-    if (app) { try { await deleteApp(app); } catch (e) {} }
-    app = initializeApp({ databaseURL: rawUrl }, 'ctrl-' + Date.now());
-    db = getDatabase(app);
-
-    await get(ref(db, '.info/connected')); 
+    setStatusMsg('📤 Connected! Ab data check kar raha hoon...', 'info');
     const snap = await get(ref(db, nodePath));
 
     if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-      setStatusMsg('📤 Data upload kar raha hoon...', 'info');
       await set(ref(db, nodePath), DEFAULT_DATA);
       setStatusMsg('✅ Data upload ho gaya!', 'success');
     } else {
@@ -188,17 +220,11 @@ window.connectAndSetup = async function () {
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
     document.getElementById('dbInfo').textContent = 'Connected: ' + rawUrl;
+    
     startRealtimeSync();
 
   } catch (err) {
-    let hint = '';
-    const m = String(err.message || err);
-    if (m.includes('permission')) {
-      hint = '<br><br>🔧 <b>Fix:</b> Firebase Rules check karein.';
-    } else {
-      hint = '<br><br>🔧 <b>Fix:</b> Aapne jo URL daala hai wo galat hai. Yeh try kiya: <b>' + rawUrl + '</b>';
-    }
-    setStatusMsg('❌ Error: ' + m + hint, 'error');
+    setStatusMsg('❌ Connected, lekin data nahi padh paya. Rules check karein!', 'error');
     btn.disabled = false;
     btn.textContent = 'Connect & Upload Data';
   }
@@ -215,7 +241,9 @@ function startRealtimeSync() {
     devices = snapshot.val() || {};
     Object.keys(devices).forEach(k => { if (!devices[k].status) devices[k].status = 'Offline'; });
     renderDevices(); updateStats();
-  }, (error) => { showToast('❌ Sync error: ' + error.message, true); });
+  }, (error) => { 
+    if(!String(error.message).includes('permission')) showToast('❌ Sync error: ' + error.message, true); 
+  });
 }
 
 window.setDeviceStatus = async function (deviceId, status) {
@@ -223,7 +251,9 @@ window.setDeviceStatus = async function (deviceId, status) {
   try {
     await update(ref(db, nodePath + '/' + deviceId), { status });
     showToast('✅ → ' + status);
-  } catch (e) { showToast('❌ ' + e.message, true); }
+  } catch (e) { 
+    showToast('❌ Rules check karein!', true); 
+  }
 };
 
 window.setAll = async function (status) {
@@ -232,7 +262,7 @@ window.setAll = async function (status) {
   Object.keys(devices).forEach(id => { updates[nodePath + '/' + id + '/status'] = status; });
   try {
     await update(ref(db), updates); showToast('✅ All → ' + status);
-  } catch (e) { showToast('❌ ' + e.message, true); }
+  } catch (e) { showToast('❌ Rules check karein!', true); }
 };
 
 window.renderDevices = function () {
@@ -240,7 +270,7 @@ window.renderDevices = function () {
   const grid = document.getElementById('deviceGrid');
   grid.innerHTML = '';
   const entries = Object.entries(devices);
-  if (entries.length === 0) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices found.</p>'; return; }
+  if (entries.length === 0) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices found. (Agar data upload nahi hua, to Firebase Rules check karein).</p>'; return; }
   
   entries.forEach(([id, d]) => {
     const name = d.Name || 'Unnamed';
