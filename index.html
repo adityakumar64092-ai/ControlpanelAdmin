@@ -1,309 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Device Panel - Pro</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Device Panel</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Share+Tech+Mono&display=swap');
-:root{
-  --bg:#020205; --bg2:#0a0514; --bg3:#120a22; --bg4:#1a0f30;
-  --gold:#a020f0; --mint:#00d4aa; --rose:#ff0055; --cyan:#00d4ff;
-  --text:#f0f0ff; --sub:#8a9bb4; --dim:#4a5b74;
-  --border:rgba(160,32,240,.2); --border2:rgba(160,32,240,.4);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:var(--bg)}
-body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* SETUP */
-#setup{display:flex;align-items:center;justify-content:center;height:100vh;padding:24px;
-  background:radial-gradient(circle at 20% 30%,rgba(160,32,240,.18),transparent 55%), var(--bg)}
-.setup-card{background:rgba(10,5,20,.9);border:1px solid var(--border2);border-radius:20px;
-  padding:40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.9);animation:fadeUp .5s}
-.fi{width:100%;padding:14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:10px;color:#fff;font-size:14px;margin-bottom:16px;outline:none}
-.fi:focus{border-color:var(--gold)}
-.cta{width:100%;padding:14px;border:none;border-radius:10px;color:#000;
-  font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#00d4ff,#0088ff)}
-.s-err{color:var(--rose);font-size:12px;margin-top:12px;display:none;text-align:center}
-
-/* PANEL */
-#panel{display:none;height:100vh;flex-direction:column}
-#panel.open{display:flex}
-.tb{background:var(--bg2);border-bottom:1px solid var(--border);height:60px;
-  display:flex;align-items:center;gap:16px;padding:0 20px;flex-shrink:0}
-.tb-logo{font-size:18px;font-weight:800;color:var(--cyan)}
-.tb-pills{display:flex;gap:8px;margin-left:20px}
-.pill{font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px}
-.p-t{background:rgba(0,212,255,.12);color:var(--cyan)}
-.p-on{background:rgba(0,212,170,.12);color:var(--mint)}
-.p-off{background:rgba(255,0,85,.1);color:var(--rose)}
-.tb-spacer{flex:1}
-
-/* NOTIFICATION TOGGLE */
-.notif-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub);cursor:pointer}
-.notif-toggle input{width:16px;height:16px;accent-color:var(--mint)}
-
-.tb-btn{height:34px;padding:0 14px;background:var(--bg3);border:1px solid var(--border);
-  border-radius:8px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer}
-.tb-btn:hover{color:#fff;border-color:var(--border2)}
-
-.body{display:flex;flex:1;overflow:hidden}
-.main{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:24px}
-
-/* TOOLBAR */
-.toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.search-box{flex:1;min-width:200px;display:flex;align-items:center;background:var(--bg2);
-  border:1px solid var(--border);border-radius:10px;padding:10px 14px}
-.search-box input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:13px}
-.filter-btn{padding:10px 16px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:10px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer}
-.filter-btn.active{background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:var(--cyan)}
-
-/* DEVICE LIST */
-.dev-list{display:flex;flex-direction:column;gap:10px}
-.dev-row{background:linear-gradient(145deg,var(--bg3),var(--bg2));
-  border:1px solid var(--border);border-radius:14px;padding:16px 18px;
-  display:flex;align-items:center;gap:14px;animation:fadeUp .2s}
-.dev-row.online{border-left:3px solid var(--mint)}
-.dev-row.offline{border-left:3px solid var(--rose)}
-.dev-num{width:38px;height:38px;border-radius:10px;background:var(--bg4);
-  display:flex;align-items:center;justify-content:center;font-family:monospace;
-  font-size:15px;font-weight:700;color:var(--cyan);flex-shrink:0}
-.dev-meta{flex:1;min-width:0}
-.dev-n{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px}
-.dev-id{font-size:10px;color:var(--dim);font-family:monospace}
-.dev-stats{display:flex;gap:16px;margin-right:10px}
-.dstat-v{font-size:12px;font-weight:700;color:var(--sub)}
-.dstat-v.on{color:var(--mint)}
-.dstat-v.off{color:var(--rose)}
-
-.toggle-btn{position:relative;width:50px;height:28px;border-radius:30px;border:none;
-  cursor:pointer;transition:background .2s;flex-shrink:0}
-.toggle-btn.on{background:var(--mint)}
-.toggle-btn.off{background:rgba(255,0,85,.3)}
-.toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;
-  border-radius:50%;background:#fff;transition:transform .2s}
-.toggle-btn.on::after{transform:translateX(22px)}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  background:var(--bg4);border:1px solid var(--border2);color:#fff;
-  padding:12px 24px;border-radius:12px;z-index:999;opacity:0;transition:all .3s}
-.toast.show{opacity:1}
-.toast.err{border-color:var(--rose);color:var(--rose)}
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: #0a0514; color: #fff; }
+    
+    /* Setup Screen */
+    #setup { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
+    input { padding: 12px; width: 100%; max-width: 400px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #a020f0; background: #120a22; color: #fff; }
+    button { padding: 12px 20px; background: #a020f0; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    
+    /* Panel */
+    #panel { display: none; height: 100vh; flex-direction: column; }
+    .header { display: flex; padding: 15px; background: #120a22; border-bottom: 2px solid #a020f0; justify-content: space-between; align-items: center; }
+    .stats { display: flex; gap: 10px; font-size: 14px; }
+    
+    .controls { display: flex; padding: 10px; gap: 10px; }
+    .controls input { margin: 0; padding: 8px; }
+    .controls button { padding: 8px 15px; font-size: 12px; }
+    
+    .list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+    
+    /* Device Card */
+    .card { background: #120a22; border: 1px solid #a020f0; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .card.online { border-left: 5px solid #00d4aa; }
+    .card.offline { border-left: 5px solid #ff0055; }
+    
+    .info { display: flex; flex-direction: column; gap: 5px; }
+    .name { font-weight: bold; font-size: 16px; }
+    .id { font-size: 11px; color: #888; }
+    .status { font-size: 12px; font-weight: bold; }
+    .status.on { color: #00d4aa; }
+    .status.off { color: #ff0055; }
+    
+    /* Toggle Button */
+    .toggle-btn { padding: 10px 15px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; border: none; }
+    .toggle-btn.on { background: #00d4aa; color: #000; }
+    .toggle-btn.off { background: #ff0055; color: #fff; }
 </style>
 </head>
 <body>
 
+<!-- SETUP SCREEN -->
 <div id="setup">
-  <div class="setup-card">
-    <h2 style="margin-bottom:10px;color:var(--cyan)">Device Panel Pro</h2>
-    <p style="font-size:12px;color:var(--sub);margin-bottom:20px">Firebase connect karo aur saare devices manage karo</p>
-    <input id="fbUrl" class="fi" placeholder="https://your-project.firebaseio.com" type="url"/>
-    <button class="cta" onclick="connect()">⚡ Connect</button>
-    <div class="s-err" id="serr"></div>
-  </div>
+    <h2 style="margin-bottom: 20px;">Firebase Connect</h2>
+    <input type="text" id="fbUrl" placeholder="https://your-project.firebaseio.com">
+    <button onclick="connect()">Connect</button>
 </div>
 
+<!-- MAIN PANEL -->
 <div id="panel">
-  <div class="tb">
-    <div class="tb-logo">Device Panel</div>
-    <div class="tb-pills">
-      <span class="pill p-t" id="pillTot">Total: 0</span>
-      <span class="pill p-on" id="pillOn">On: 0</span>
-      <span class="pill p-off" id="pillOff">Off: 0</span>
-    </div>
-    <div class="tb-spacer"></div>
-    <!-- Notification Toggle -->
-    <label class="notif-toggle">
-      <input type="checkbox" id="notifToggle" onchange="toggleNotifications()" checked/>
-      🔔 Alerts (Auto)
-    </label>
-    <button class="tb-btn" onclick="manualRefresh()">↻ Refresh</button>
-    <button class="tb-btn" onclick="disconnect()" style="color:var(--rose)">Exit</button>
-  </div>
-  
-  <div class="body">
-    <div class="main">
-      <div class="toolbar">
-        <div class="search-box">
-          <span>🔍</span>
-          <input id="searchInput" placeholder="Search device..." oninput="renderDevices()"/>
+    <div class="header">
+        <h3>Device Panel</h3>
+        <div class="stats">
+            <span>Total: <b id="cntTotal">0</b></span>
+            <span>On: <b id="cntOn" style="color: #00d4aa;">0</b></span>
+            <span>Off: <b id="cntOff" style="color: #ff0055;">0</b></span>
         </div>
-        <button class="filter-btn active" id="fAll" onclick="setFilter('all')">All</button>
-        <button class="filter-btn" id="fOn" onclick="setFilter('online')">🟢 Online</button>
-        <button class="filter-btn" id="fOff" onclick="setFilter('offline')">🔴 Offline</button>
-      </div>
-      <div id="devList" class="dev-list"></div>
+        <button onclick="manualRefresh()">Refresh</button>
     </div>
-  </div>
-</div>
+    
+    <div class="controls">
+        <input type="text" id="search" placeholder="Search device..." oninput="render()">
+        <button onclick="filterMode='all'; render()">All</button>
+        <button onclick="filterMode='online'; render()">Online</button>
+        <button onclick="filterMode='offline'; render()">Offline</button>
+    </div>
 
-<div class="toast" id="toastEl"></div>
+    <!-- Yahan saare devices render honge -->
+    <div class="list" id="deviceList"></div>
+</div>
 
 <script>
-let FB_URL = '', allDevices = [], pollTimer = null, filterMode = 'all';
-let prevStatus = {}; // For notifications
-let notifEnabled = true;
+    let FB_URL = "";
+    let devicesArray = [];
+    let filterMode = "all";
 
-// CONNECT
-async function connect() {
-  const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/, '');
-  if (!url) return;
-  try {
-    const res = await fetch(url + '/devices.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    FB_URL = url;
-    document.getElementById('setup').style.display = 'none';
-    document.getElementById('panel').classList.add('open');
-    await loadDevices();
-    startPolling();
-  } catch (e) {
-    document.getElementById('serr').textContent = 'Failed: ' + e.message;
-    document.getElementById('serr').style.display = 'block';
-  }
-}
+    // Connect to Firebase
+    function connect() {
+        let url = document.getElementById("fbUrl").value.trim();
+        if (!url) return alert("Firebase URL daalo!");
+        
+        FB_URL = url.replace(/\/$/, ""); // Remove trailing slash
+        
+        // UI switch
+        document.getElementById("setup").style.display = "none";
+        document.getElementById("panel").style.display = "flex";
+        
+        loadData();
+        // Auto refresh every 3 seconds
+        setInterval(loadData, 3000);
+    }
 
-// AUTO REFRESH (Auto-Mission)
-function startPolling() {
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(loadDevices, 3000); // Har 3 second
-}
-
-// LOAD DEVICES (No Limit)
-async function loadDevices() {
-  if (!FB_URL) return;
-  try {
-    const res = await fetch(FB_URL + '/devices.json');
-    const data = await res.json();
-    if (!data) return;
-
-    let tempDevices = [];
-    Object.keys(data).forEach(id => {
-      const d = data[id];
-      if (!d || typeof d !== 'object') return;
-      
-      const isOnline = !!d.status;
-      
-      // 🔔 NOTIFICATION LOGIC
-      if (notifEnabled && prevStatus[id] !== undefined) {
-        if (prevStatus[id] === false && isOnline === true) {
-          toast(`🟢 ${d.name || id} is now ONLINE`, 'success');
-        } else if (prevStatus[id] === true && isOnline === false) {
-          toast(`🔴 ${d.name || id} is now OFFLINE`, 'err');
+    // Fetch data from Firebase
+    async function loadData() {
+        if (!FB_URL) return;
+        try {
+            // Fetching whole devices node
+            let response = await fetch(FB_URL + "/devices.json");
+            let data = await response.json();
+            
+            devicesArray = [];
+            
+            if (data) {
+                // Loop through all keys (No limit)
+                for (let key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        let dev = data[key];
+                        if (typeof dev === 'object' && dev !== null) {
+                            devicesArray.push({
+                                id: key,
+                                name: dev.name || dev.deviceName || "Unknown Device",
+                                status: dev.status === true || dev.status === "true", // Force boolean
+                                phone: dev.phone || "-",
+                                battery: dev.batteryRaw || "-"
+                            });
+                        }
+                    }
+                }
+            }
+            render();
+        } catch (error) {
+            console.log("Error fetching data:", error);
         }
-      }
-      prevStatus[id] = isOnline;
+    }
 
-      tempDevices.push({
-        id: id,
-        name: d.name || d.deviceName || ('Device ' + id.slice(0, 6)),
-        phone: d.phone || '—',
-        battery: d.batteryRaw || '—',
-        realStatus: isOnline
-      });
-    });
+    // Show devices on screen
+    function render() {
+        let list = document.getElementById("deviceList");
+        let searchTxt = document.getElementById("search").value.toLowerCase();
+        
+        // Filter
+        let filtered = devicesArray.filter(d => {
+            if (filterMode === "online" && !d.status) return false;
+            if (filterMode === "offline" && d.status) return false;
+            if (searchTxt && !(d.name.toLowerCase().includes(searchTxt) || d.id.toLowerCase().includes(searchTxt))) return false;
+            return true;
+        });
 
-    // Sort by Online first
-    tempDevices.sort((a, b) => a.realStatus === b.realStatus ? 0 : a.realStatus ? -1 : 1);
-    allDevices = tempDevices;
+        // Sort Online First
+        filtered.sort((a, b) => a.status === b.status ? 0 : a.status ? -1 : 1);
 
-    renderDevices();
-    renderStats();
-  } catch (e) { console.error(e); }
-}
+        // Update Stats
+        let total = devicesArray.length;
+        let on = devicesArray.filter(d => d.status).length;
+        document.getElementById("cntTotal").innerText = total;
+        document.getElementById("cntOn").innerText = on;
+        document.getElementById("cntOff").innerText = total - on;
 
-// RENDER UI
-function renderDevices() {
-  const list = document.getElementById('devList');
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  
-  let filtered = allDevices.filter(d => {
-    if (filterMode === 'online' && !d.realStatus) return false;
-    if (filterMode === 'offline' && d.realStatus) return false;
-    if (search && !(d.name + d.id).toLowerCase().includes(search)) return false;
-    return true;
-  });
+        // Generate HTML
+        let html = "";
+        filtered.forEach((d, index) => {
+            html += `
+                <div class="card ${d.status ? 'online' : 'offline'}">
+                    <div class="info">
+                        <div class="name">${index + 1}. ${d.name}</div>
+                        <div class="id">${d.id}</div>
+                        <div class="status ${d.status ? 'on' : 'off'}">${d.status ? '🟢 ONLINE' : '🔴 OFFLINE'}</div>
+                    </div>
+                    <button class="toggle-btn ${d.status ? 'on' : 'off'}" onclick="toggleStatus('${d.id}', ${d.status})">
+                        Change
+                    </button>
+                </div>
+            `;
+        });
+        
+        list.innerHTML = html || "<p style='text-align:center; padding:20px;'>No devices found.</p>";
+    }
 
-  if (filtered.length === 0) {
-    list.innerHTML = '<p style="text-align:center;color:var(--dim);padding:20px">No devices found</p>';
-    return;
-  }
+    // Toggle (Control) device
+    async function toggleStatus(id, currentStatus) {
+        let newCmd = currentStatus ? "offline" : "online"; // Agar on hai to off karo, agar off hai to on karo
+        
+        // Optimistic UI update
+        let dev = devicesArray.find(x => x.id === id);
+        if(dev) {
+            dev.status = !currentStatus;
+            render();
+        }
 
-  let html = '';
-  filtered.forEach((d, idx) => {
-    html += `
-    <div class="dev-row ${d.realStatus ? 'online' : 'offline'}">
-      <div class="dev-num">${idx + 1}</div>
-      <div class="dev-meta">
-        <div class="dev-n">${d.name}</div>
-        <div class="dev-id">${d.id}</div>
-      </div>
-      <div class="dev-stats">
-        <div class="dstat-v">${d.phone}</div>
-        <div class="dstat-v">${d.battery}</div>
-        <div class="dstat-v ${d.realStatus ? 'on' : 'off'}">
-          ${d.realStatus ? 'Online' : 'Offline'}
-        </div>
-      </div>
-      <button class="toggle-btn ${d.realStatus ? 'on' : 'off'}" onclick="toggleDevice('${d.id}', ${d.realStatus})"></button>
-    </div>`;
-  });
-  list.innerHTML = html;
-}
+        try {
+            // Firebase mein adminStatus save karo
+            await fetch(FB_URL + "/devices/" + id + "/adminStatus.json", {
+                method: "PUT",
+                body: JSON.stringify(newCmd)
+            });
+            alert("Command bhej diya: " + newCmd.toUpperCase());
+        } catch (e) {
+            alert("Error sending command!");
+            loadData(); // Revert on error
+        }
+    }
 
-function renderStats() {
-  const tot = allDevices.length;
-  const on = allDevices.filter(d => d.realStatus).length;
-  document.getElementById('pillTot').textContent = 'Total: ' + tot;
-  document.getElementById('pillOn').textContent = 'On: ' + on;
-  document.getElementById('pillOff').textContent = 'Off: ' + (tot - on);
-}
-
-// TOGGLE
-async function toggleDevice(id, current) {
-  const newStatus = current ? 'offline' : 'online';
-  const url = FB_URL + '/devices/' + id + '/adminStatus.json';
-  await fetch(url, { method: 'PUT', body: JSON.stringify(newStatus) });
-  toast('Command sent to ' + id, 'success');
-}
-
-// FILTER
-function setFilter(mode) {
-  filterMode = mode;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('f' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
-  renderDevices();
-}
-
-function toggleNotifications() {
-  notifEnabled = document.getElementById('notifToggle').checked;
-}
-
-async function manualRefresh() {
-  await loadDevices();
-  toast('Refreshed', 'success');
-}
-
-function disconnect() {
-  if (pollTimer) clearInterval(pollTimer);
-  FB_URL = ''; allDevices = []; prevStatus = {};
-  document.getElementById('setup').style.display = 'flex';
-  document.getElementById('panel').classList.remove('open');
-}
-
-function toast(msg, type) {
-  const el = document.getElementById('toastEl');
-  el.textContent = msg;
-  el.className = 'toast show ' + (type || '');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.className = 'toast', 2500);
-}
+    // Manual Refresh Button
+    function manualRefresh() {
+        loadData();
+    }
 </script>
 </body>
 </html>
