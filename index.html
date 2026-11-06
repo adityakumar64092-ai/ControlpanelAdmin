@@ -145,26 +145,22 @@ window.connectAndSetup = async function () {
 
   if (!inputUrl) { setStatusMsg('❌ URL khali hai.', 'error'); return; }
 
-  // 🔥 ASIA REGION FIX 🔥
-  let projectId = inputUrl.split('.')[0].replace('https://', ''); 
-  if (!projectId.includes('-default-rtdb')) {
-     projectId = projectId + '-default-rtdb';
-  } else {
-     projectId = projectId.split('-default-rtdb')[0] + '-default-rtdb';
-  }
-
-  // Force Asia URL (Singapore)
-  const finalUrl = `https://${projectId}.asia-southeast1.firebasedatabase.app`;
+  // Clean input URL
+  if (!inputUrl.startsWith('http')) { inputUrl = 'https://' + inputUrl; }
+  inputUrl = inputUrl.replace(/\/$/, "");
 
   btn.disabled = true;
   btn.textContent = 'Connecting...';
-  setStatusMsg('⏳ Connecting to Asia Server...', 'info');
+  setStatusMsg('⏳ Connecting to: <br><b>' + inputUrl + '</b>', 'info');
 
   try {
     if (app) { try { await deleteApp(app); } catch (e) {} }
-    app = initializeApp({ databaseURL: finalUrl }, 'ctrl-' + Date.now());
+    
+    // Init with user provided URL
+    app = initializeApp({ databaseURL: inputUrl }, 'ctrl-' + Date.now());
     db = getDatabase(app);
 
+    // Check Connection
     await get(ref(db, '.info/connected')); 
     const snap = await get(ref(db, nodePath));
 
@@ -176,14 +172,14 @@ window.connectAndSetup = async function () {
       setStatusMsg('✅ Data pehle se maujood hai.', 'success');
     }
 
-    localStorage.setItem('fb_config', JSON.stringify({ url: finalUrl, nodePath }));
+    localStorage.setItem('fb_config', JSON.stringify({ url: inputUrl, nodePath }));
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('dbInfo').textContent = 'Connected: ' + finalUrl;
+    document.getElementById('dbInfo').textContent = 'Connected: ' + inputUrl;
     startRealtimeSync();
 
   } catch (err) {
-    let hint = 'Kripya Firebase Console mein check karein ki "Realtime Database" create hua hai ya nahi, aur Rules "Test Mode" mein hain ya nahi.';
+    let hint = 'Kripya Firebase Console mein check karein ki URL sahi hai, Rules open hain, aur Realtime Database create hua hai.';
     setStatusMsg('❌ Error: ' + err.message + '<br><br>' + hint, 'error');
     btn.disabled = false;
     btn.textContent = 'Connect & Upload Data';
