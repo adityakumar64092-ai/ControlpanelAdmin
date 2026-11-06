@@ -51,18 +51,16 @@
   .conn-disconnected { background: #ef444422; color: #ef4444; }
   .conn-connecting { background: #f59e0b22; color: #f59e0b; }
   .hidden { display: none !important; }
-  .toast { position: fixed; bottom: 20px; right: 20px; background: #1e293b; padding: 14px 18px; border-radius: 8px; border: 1px solid #38bdf8; font-size: 13px; z-index: 999; max-width: 340px; }
-  .toast.error { border-color: #ef4444; color: #fca5a5; }
 </style>
 </head>
 <body>
 
 <div id="setupScreen" class="setup-box">
   <h2>🔥 Firebase Connection Setup</h2>
-  <p class="subtitle" style="margin-bottom:0;">Agar URL connect nahi hota, to bhi panel khulega (Offline Mode).</p>
+  <p class="subtitle" style="margin-bottom:0;">Agar URL connect nahi hota, to bhi panel bina error ke khulega.</p>
 
   <label>Firebase Realtime Database URL</label>
-  <input type="text" id="dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
+  <input type="text" id="dbUrl" placeholder="https://maxjoker98-d9bcb-default-rtdb.firebaseio.com" />
 
   <label>Node Path</label>
   <input type="text" id="nodePath" value="All_User/Info" />
@@ -137,29 +135,25 @@ window.connectAndSetup = async function () {
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
   const btn = document.getElementById('connectBtn');
 
-  if (!inputUrl.startsWith('http') && inputUrl !== '') { inputUrl = 'https://' + inputUrl; }
+  if (!inputUrl) { setStatusMsg('URL daalein.', 'error'); return; }
+  if (!inputUrl.startsWith('http')) { inputUrl = 'https://' + inputUrl; }
 
   btn.disabled = true;
-  btn.textContent = 'Checking...';
-  setStatusMsg('⏳ Firebase check kar raha hoon...', 'info');
+  btn.textContent = 'Connecting...';
+  setStatusMsg('⏳ Firebase se connect kar raha hoon...', 'info');
 
   try {
-    if (inputUrl === '') throw new Error("URL khali hai");
     if (app) { try { await deleteApp(app); } catch (e) {} }
     
     app = initializeApp({ databaseURL: inputUrl }, 'ctrl-' + Date.now());
     db = getDatabase(app);
 
-    // Test connection with 4 sec timeout
-    await Promise.race([
-        get(ref(db, '.info/connected')),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 4000))
-    ]);
-
-    // Agar yahan aaya, matlab connect ho gaya
-    setStatusMsg('✅ Firebase Connected! Data upload ho raha hai...', 'success');
-    
+    // Correct way to check DB read permission
     const snap = await get(ref(db, nodePath));
+
+    // Agar yahan tak aaya matlab connection aur rules sahi hain!
+    setStatusMsg('✅ Firebase Connected! Data check ho raha hai...', 'success');
+    
     if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
       await set(ref(db, nodePath), DEFAULT_DATA);
     }
@@ -173,10 +167,9 @@ window.connectAndSetup = async function () {
     isOfflineMode = false;
 
   } catch (err) {
-    // ERROR BYPASS: Agar connect nahi hua, toh ghabrao mat, Offline mode chalu karo!
+    // ERROR BYPASS: Agar Firebase fail hua, toh bina error dikhaye Offline Mode chalu karo
     isOfflineMode = true;
     
-    // Local storage se data uthao ya default lagao
     let localData = localStorage.getItem('local_devices');
     devices = localData ? JSON.parse(localData) : DEFAULT_DATA;
 
@@ -205,9 +198,7 @@ function startRealtimeSync() {
     devices = snapshot.val() || {};
     Object.keys(devices).forEach(k => { if (!devices[k].status) devices[k].status = 'Offline'; });
     renderDevices(); updateStats();
-  }, (error) => { 
-     // Ignore error in background 
-  });
+  }, (error) => { /* Background error ignore */ });
 }
 
 window.setDeviceStatus = async function (deviceId, status) {
@@ -219,7 +210,6 @@ window.setDeviceStatus = async function (deviceId, status) {
   if (!isOfflineMode && db) {
     try { await update(ref(db, nodePath + '/' + deviceId), { status }); } catch(e) {}
   } else {
-    // Save to local phone browser
     localStorage.setItem('local_devices', JSON.stringify(devices));
   }
 };
