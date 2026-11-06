@@ -77,6 +77,9 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
 .tb-btn.refresh-btn{color:var(--cyan);border-color:rgba(0,212,255,.3)}
 .tb-btn.refresh-btn:hover{background:rgba(0,212,255,.1)}
 .tb-btn.spinning svg{animation:spin .6s linear infinite}
+.tb-btn.save-all{color:var(--mint);border-color:rgba(0,212,170,.3)}
+.tb-btn.save-all:hover{background:rgba(0,212,170,.1)}
+.tb-btn.save-all:disabled{opacity:.4;cursor:not-allowed}
 
 .body{display:flex;flex:1;overflow:hidden}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -94,6 +97,8 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
   font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
 .filter-btn.active{background:rgba(0,212,255,.15);border-color:rgba(0,212,255,.4);color:var(--cyan)}
 .filter-btn:hover:not(.active){color:var(--text);border-color:var(--border2)}
+.count-badge{margin-left:auto;font-size:11px;color:var(--dim);padding:8px 12px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px}
 
 .sec-hdr{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
   color:var(--sub);margin-bottom:16px;display:flex;align-items:center;gap:12px}
@@ -102,8 +107,8 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
 .dev-list{display:flex;flex-direction:column;gap:10px}
 .dev-row{background:linear-gradient(145deg,var(--bg3),var(--bg2));
   border:1px solid var(--border);border-radius:14px;padding:16px 18px;
-  display:flex;align-items:center;gap:14px;position:relative;transition:all .2s;
-  animation:fadeUp .3s}
+  display:flex;align-items:center;gap:14px;position:relative;transition:all .15s;
+  animation:fadeUp .25s}
 .dev-row:hover{border-color:var(--border2);transform:translateX(3px);
   box-shadow:0 8px 30px rgba(0,0,0,.5)}
 .dev-row.online{border-left:3px solid var(--mint)}
@@ -129,26 +134,49 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
   overflow:hidden;text-overflow:ellipsis;max-width:110px}
 .dstat-v.on{color:var(--mint)}
 .dstat-v.off{color:var(--rose)}
-.dstat-v.forced-tag{color:var(--cyan);font-size:10px}
 
 .toggle-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
 .toggle-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
 .toggle-btn{position:relative;width:56px;height:30px;border-radius:30px;border:none;
-  cursor:pointer;transition:background .25s;flex-shrink:0}
+  cursor:pointer;transition:background .2s;flex-shrink:0}
 .toggle-btn.on{background:linear-gradient(135deg,#00d4aa,#00d4ff);
   box-shadow:0 0 16px rgba(0,212,170,.45)}
 .toggle-btn.off{background:rgba(255,0,85,.25);border:1px solid rgba(255,0,85,.4)}
 .toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;
-  border-radius:50%;background:#fff;transition:transform .25s;
+  border-radius:50%;background:#fff;transition:transform .2s;
   box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .toggle-btn.on::after{transform:translateX(26px)}
 .toggle-btn:disabled{opacity:.4;cursor:not-allowed}
-.toggle-btn.busy::after{animation:pulse .7s infinite}
 
-.clear-btn{padding:8px 12px;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.25);
+.save-btn{padding:9px 14px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);
+  border-radius:8px;color:var(--mint);font-family:'Exo 2',sans-serif;font-size:11px;
+  font-weight:700;cursor:pointer;transition:all .15s;flex-shrink:0;display:flex;
+  align-items:center;gap:5px}
+.save-btn:hover{background:rgba(0,212,170,.22);border-color:rgba(0,212,170,.5)}
+.save-btn:disabled{opacity:.4;cursor:not-allowed}
+.save-btn.saved{background:rgba(0,212,170,.25);color:#fff}
+.save-btn.save-btn-mini{padding:7px 12px;font-size:11px}
+
+.clear-btn{padding:7px 12px;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.25);
   border-radius:8px;color:var(--rose);font-family:'Exo 2',sans-serif;font-size:11px;
-  font-weight:700;cursor:pointer;transition:all .18s;flex-shrink:0}
+  font-weight:700;cursor:pointer;transition:all .15s;flex-shrink:0}
 .clear-btn:hover{background:rgba(255,0,85,.18)}
+
+/* Bulk save bar */
+.bulk-bar{position:sticky;bottom:16px;background:linear-gradient(135deg,var(--bg4),var(--bg3));
+  border:1px solid var(--border2);border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:12px;margin-top:20px;
+  box-shadow:0 10px 40px rgba(0,0,0,.6);animation:fadeUp .3s}
+.bulk-bar .info{flex:1;font-size:12px;color:var(--sub)}
+.bulk-bar .info b{color:var(--cyan)}
+.bulk-bar button{padding:11px 22px;background:linear-gradient(135deg,#00d4aa,#00d4ff);
+  border:none;border-radius:10px;color:#020810;font-family:'Exo 2',sans-serif;
+  font-size:13px;font-weight:800;cursor:pointer;transition:all .2s}
+.bulk-bar button:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,212,170,.4)}
+.bulk-bar button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.bulk-bar .reset{padding:11px 18px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--sub);font-weight:700;border-radius:10px;cursor:pointer;font-family:'Exo 2',sans-serif;font-size:12px}
+.bulk-bar .reset:hover{color:var(--text);border-color:var(--border2)}
 
 .loading{display:flex;align-items:center;justify-content:center;padding:60px;
   color:var(--sub);font-size:13px;gap:12px}
@@ -165,11 +193,14 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
   box-shadow:0 10px 36px rgba(0,0,0,.6)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{border-color:rgba(255,0,85,.5);color:var(--rose)}
+.toast.success{border-color:rgba(0,212,170,.5);color:var(--mint)}
 
-@media (max-width:640px){
+@media (max-width:720px){
   .dev-stats{display:none}
   .dev-num{width:32px;height:32px;font-size:12px}
   .toolbar{flex-direction:column;align-items:stretch}
+  .save-btn{font-size:10px;padding:7px 10px}
+  .clear-btn{font-size:10px;padding:6px 10px}
 }
 </style>
 </head>
@@ -178,7 +209,7 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
 <div id="setup">
   <div class="setup-card">
     <div class="setup-h"><span class="gold-word">Device</span> Control Panel</div>
-    <div class="setup-sub">Firebase se connect karo — device ko online/offline force karo</div>
+    <div class="setup-sub">Firebase se connect karo — saare devices online/offline karo</div>
     <label class="fl">Firebase Database URL</label>
     <input id="fbUrl" class="fi" placeholder="https://your-project.firebaseio.com" type="url"/>
     <label class="fl">API Key (optional)</label>
@@ -197,6 +228,9 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
       <span class="pill p-off" id="pillOff">Off: 0</span>
     </div>
     <div class="tb-spacer"></div>
+    <button class="tb-btn save-all" id="saveAllBtn" onclick="saveAllChanges()" disabled>
+      💾 Save All Changes
+    </button>
     <button class="tb-btn refresh-btn" id="refreshBtn" onclick="manualRefresh()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polyline points="23 4 23 10 17 10"></polyline>
@@ -213,15 +247,21 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
         <div class="toolbar">
           <div class="search-box">
             <span style="color:var(--dim)">🔍</span>
-            <input id="searchInput" placeholder="Search device (name/ID/phone)..." oninput="renderDevices()"/>
+            <input id="searchInput" placeholder="Search device..." oninput="renderDevices()"/>
           </div>
           <button class="filter-btn active" id="fAll" onclick="setFilter('all')">All</button>
           <button class="filter-btn" id="fOn" onclick="setFilter('online')">🟢 Online</button>
           <button class="filter-btn" id="fOff" onclick="setFilter('offline')">🔴 Offline</button>
+          <span class="count-badge" id="countBadge">0 / 0</span>
         </div>
         <div class="sec-hdr" id="secHdr">Devices</div>
         <div id="devList" class="dev-list">
           <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+        <div class="bulk-bar" id="bulkBar" style="display:none">
+          <div class="info"><b id="pendingCount">0</b> changes pending — click Save All to apply</div>
+          <button class="reset" onclick="discardChanges()">Discard</button>
+          <button onclick="saveAllChanges()">💾 Save All</button>
         </div>
       </div>
     </div>
@@ -236,10 +276,12 @@ body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:ant
 // ==========================================================
 let FB_URL = '';
 let FB_KEY = '';
-let allDevices = [];
+let allDevices = [];      // loaded from Firebase
+let pendingChanges = {};  // { id: 'online' | 'offline' } — user ne toggle kiya
 let pollTimer = null;
 let filterMode = 'all';
 let busyIds = new Set();
+let isSavingAll = false;
 
 // ==========================================================
 // CONNECT
@@ -250,7 +292,7 @@ async function connect() {
   const err = document.getElementById('serr');
 
   if (!url || !url.startsWith('http')) {
-    err.textContent = 'Sahi Firebase URL daalo (https://... se shuru)';
+    err.textContent = 'Sahi Firebase URL daalo (https://... se)';
     err.style.display = 'block';
     return;
   }
@@ -266,7 +308,7 @@ async function connect() {
     document.getElementById('panel').classList.add('open');
     await loadDevices();
     startPolling();
-    toast('✓ Connected');
+    toast('✓ Connected', 'success');
   } catch (e) {
     err.textContent = 'Connection failed: ' + e.message;
     err.style.display = 'block';
@@ -276,18 +318,20 @@ async function connect() {
 function disconnect() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   FB_URL = ''; FB_KEY = '';
-  allDevices = []; busyIds.clear();
+  allDevices = []; pendingChanges = {}; busyIds.clear();
   document.getElementById('setup').style.display = 'flex';
   document.getElementById('panel').classList.remove('open');
 }
 
 // ==========================================================
-// LOAD DEVICES — main fix is here
+// LOAD DEVICES (fast, with cache-bust)
 // ==========================================================
 async function loadDevices() {
   if (!FB_URL) return;
   try {
-    const res = await fetch(FB_URL + '/devices.json' + (FB_KEY ? '?auth=' + FB_KEY : ''));
+    const cacheBust = '&_=' + Date.now();
+    const authStr = FB_KEY ? '?auth=' + FB_KEY + cacheBust : '?_=' + Date.now();
+    const res = await fetch(FB_URL + '/devices.json' + authStr);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
@@ -297,14 +341,17 @@ async function loadDevices() {
         const d = data[id];
         if (!d || typeof d !== 'object') return;
 
-        // ====================================================
-        // KEY FIX: showOnline logic
-        // Agar adminStatus set hai → wahi shown hoga (forced)
-        // Agar adminStatus null hai → actual status shown hoga
-        // ====================================================
         const hasAdmin = d.adminStatus === 'online' || d.adminStatus === 'offline';
-        const shownOnline = hasAdmin
-          ? (d.adminStatus === 'online')
+
+        // Pending change overrides server adminStatus
+        let effectiveAdmin = d.adminStatus || null;
+        if (pendingChanges.hasOwnProperty(id)) {
+          effectiveAdmin = pendingChanges[id];
+        }
+
+        const isForced = (effectiveAdmin === 'online' || effectiveAdmin === 'offline');
+        const shownOnline = isForced
+          ? (effectiveAdmin === 'online')
           : !!d.status;
 
         allDevices.push({
@@ -314,13 +361,13 @@ async function loadDevices() {
           battery: d.batteryRaw != null ? String(d.batteryRaw)
                  : (d.batteryNum != null ? d.batteryNum + '%' : '—'),
           actualStatus: !!d.status,
-          adminStatus: d.adminStatus || null,
-          shownOnline: shownOnline,     // <-- yahi toggle aur UI use karega
-          isForced: hasAdmin
+          serverAdmin: d.adminStatus || null,  // what's on server
+          pendingAdmin: pendingChanges[id] || null, // what user clicked
+          isForced: isForced,
+          shownOnline: shownOnline
         });
       });
 
-      // Sort: shownOnline first, then id desc
       allDevices.sort((a, b) => {
         if (a.shownOnline !== b.shownOnline) return a.shownOnline ? -1 : 1;
         return String(b.id).localeCompare(String(a.id));
@@ -328,21 +375,22 @@ async function loadDevices() {
     }
     renderDevices();
     renderStats();
+    updateBulkBar();
   } catch (e) {
     console.error('Load failed:', e);
     toast('Load failed: ' + e.message, true);
   }
 }
 
-// AUTO-REFRESH — but only when idle, not overriding toggles
 function startPolling() {
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(() => {
-    if (busyIds.size > 0) return; // skip if toggle in progress
+    if (busyIds.size > 0 || isSavingAll) return;
+    if (Object.keys(pendingChanges).length > 0) return; // don't overwrite pending
     if (document.getElementById('panel').classList.contains('open')) {
       loadDevices();
     }
-  }, 8000); // 8 sec, not 5
+  }, 5000);
 }
 
 // ==========================================================
@@ -364,6 +412,7 @@ function renderDevices() {
 
   document.getElementById('secHdr').textContent =
     'Devices (' + filtered.length + (filtered.length !== allDevices.length ? ' of ' + allDevices.length : '') + ')';
+  document.getElementById('countBadge').textContent = filtered.length + ' / ' + allDevices.length;
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="empty"><div class="ei">📱</div><p>' +
@@ -373,12 +422,16 @@ function renderDevices() {
     return;
   }
 
-  list.innerHTML = filtered.map((d, idx) => {
-    const serial = idx + 1;
+  // Build all rows in one string — FAST for 100+ devices
+  let html = '';
+  for (let i = 0; i < filtered.length; i++) {
+    const d = filtered[i];
+    const serial = i + 1;
     const isBusy = busyIds.has(d.id);
+    const hasPending = d.pendingAdmin !== null && d.pendingAdmin !== d.serverAdmin;
 
-    return `
-    <div class="dev-row ${d.shownOnline ? 'online' : 'offline'} ${d.isForced ? 'forced' : ''}">
+    html += `
+    <div class="dev-row ${d.shownOnline ? 'online' : 'offline'} ${d.isForced ? 'forced' : ''}" data-id="${esc(d.id)}">
       <div class="dev-num">${serial}</div>
 
       <div class="dev-meta">
@@ -399,22 +452,29 @@ function renderDevices() {
           <div class="dstat-l">Status</div>
           <div class="dstat-v ${d.shownOnline ? 'on' : 'off'}">
             ${d.shownOnline ? 'Online' : 'Offline'}
-            ${d.isForced ? '<span class="dstat-v forced-tag">🔒</span>' : ''}
+            ${d.isForced ? ' 🔒' : ''}
           </div>
         </div>
       </div>
 
-      ${d.isForced ? `<button class="clear-btn" onclick="clearForce('${esc(d.id)}')" title="Force hatao — actual status dikhao">✕ Reset</button>` : ''}
+      ${d.isForced ? `<button class="clear-btn" onclick="event.stopPropagation();clearForce('${esc(d.id)}')" title="Force hatao">✕</button>` : ''}
 
       <div class="toggle-wrap">
         <div class="toggle-lbl">${d.shownOnline ? 'ON' : 'OFF'}</div>
-        <button class="toggle-btn ${d.shownOnline ? 'on' : 'off'} ${isBusy ? 'busy' : ''}"
+        <button class="toggle-btn ${d.shownOnline ? 'on' : 'off'}"
                 ${isBusy ? 'disabled' : ''}
-                onclick="toggleDevice('${esc(d.id)}', ${d.shownOnline})"
-                title="${d.shownOnline ? 'Force OFFLINE' : 'Force ONLINE'}"></button>
+                onclick="toggleDevice('${esc(d.id)}')"
+                title="Click to ${d.shownOnline ? 'Offline' : 'Online'}"></button>
       </div>
+
+      <button class="save-btn ${hasPending ? 'saved' : ''}"
+              onclick="saveSingle('${esc(d.id)}')"
+              ${isBusy || !hasPending ? 'disabled' : ''}>
+        ${hasPending ? '💾 Save' : '✓ Saved'}
+      </button>
     </div>`;
-  }).join('');
+  }
+  list.innerHTML = html;
 }
 
 function renderStats() {
@@ -436,86 +496,168 @@ function setFilter(mode) {
 }
 
 // ==========================================================
-// TOGGLE — core fix
+// TOGGLE — instant UI, pending change stored
 // ==========================================================
-async function toggleDevice(id, currentlyOnline) {
-  if (!FB_URL || busyIds.has(id)) return;
-  busyIds.add(id);
+function toggleDevice(id) {
+  if (busyIds.has(id)) return;
 
-  const newStatus = currentlyOnline ? 'offline' : 'online';
-
-  // OPTIMISTIC UI update
   const dev = allDevices.find(x => x.id === id);
-  const oldAdmin = dev ? dev.adminStatus : null;
-  if (dev) {
-    dev.adminStatus = newStatus;
-    dev.shownOnline = (newStatus === 'online');
-    dev.isForced = true;
-  }
+  if (!dev) return;
+
+  // Toggle current SHOWN state
+  const newOnline = !dev.shownOnline;
+  const newStatus = newOnline ? 'online' : 'offline';
+
+  // Set pending change
+  pendingChanges[id] = newStatus;
+
+  // Update UI instantly
+  dev.pendingAdmin = newStatus;
+  dev.shownOnline = newOnline;
+  dev.isForced = true;
+
   renderDevices();
   renderStats();
+  updateBulkBar();
+}
+
+// ==========================================================
+// SAVE SINGLE DEVICE — writes to Firebase immediately
+// ==========================================================
+async function saveSingle(id) {
+  if (!FB_URL || busyIds.has(id)) return;
+
+  const dev = allDevices.find(x => x.id === id);
+  if (!dev || !dev.pendingAdmin) return;
+
+  const targetStatus = dev.pendingAdmin;
+  busyIds.add(id);
+  renderDevices();
 
   try {
     const url = FB_URL + '/devices/' + id + '/adminStatus.json' + (FB_KEY ? '?auth=' + FB_KEY : '');
     const res = await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newStatus)
+      body: JSON.stringify(targetStatus)
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    toast('✓ Device ' + id.slice(0, 8) + '… → ' + newStatus.toUpperCase());
+    // Success — clear pending, update server status locally
+    delete pendingChanges[id];
+    dev.serverAdmin = targetStatus;
+    dev.pendingAdmin = null;
+
+    toast('✓ ' + id.slice(0, 6) + '… saved → ' + targetStatus.toUpperCase(), 'success');
   } catch (e) {
-    // ROLLBACK
-    if (dev) {
-      dev.adminStatus = oldAdmin;
-      dev.isForced = oldAdmin === 'online' || oldAdmin === 'offline';
-      dev.shownOnline = dev.isForced ? (oldAdmin === 'online') : dev.actualStatus;
-    }
-    toast('Toggle failed: ' + e.message, true);
+    toast('Save failed: ' + e.message, true);
   } finally {
     busyIds.delete(id);
     renderDevices();
     renderStats();
-    // Sync after 1 sec
-    setTimeout(() => loadDevices(), 1000);
+    updateBulkBar();
   }
 }
 
 // ==========================================================
-// CLEAR FORCE — adminStatus hatao, device wapas normal
+// SAVE ALL CHANGES
+// ==========================================================
+async function saveAllChanges() {
+  if (isSavingAll || !FB_URL) return;
+  const ids = Object.keys(pendingChanges);
+  if (ids.length === 0) {
+    toast('No pending changes');
+    return;
+  }
+
+  isSavingAll = true;
+  const saveBtn = document.getElementById('saveAllBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = '⏳ Saving (' + ids.length + ')...';
+
+  let ok = 0, fail = 0;
+
+  // Parallel saves — FAST
+  await Promise.all(ids.map(async (id) => {
+    const target = pendingChanges[id];
+    try {
+      const url = FB_URL + '/devices/' + id + '/adminStatus.json' + (FB_KEY ? '?auth=' + FB_KEY : '');
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(target)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const dev = allDevices.find(x => x.id === id);
+      if (dev) { dev.serverAdmin = target; dev.pendingAdmin = null; }
+      delete pendingChanges[id];
+      ok++;
+    } catch (e) {
+      fail++;
+    }
+  }));
+
+  isSavingAll = false;
+  saveBtn.disabled = true;
+  saveBtn.textContent = '💾 Save All Changes';
+
+  if (fail === 0) toast('✓ All ' + ok + ' saved!', 'success');
+  else toast('✓ ' + ok + ' saved, ✗ ' + fail + ' failed', true);
+
+  renderDevices();
+  renderStats();
+  updateBulkBar();
+}
+
+// ==========================================================
+// DISCARD PENDING
+// ==========================================================
+function discardChanges() {
+  pendingChanges = {};
+  allDevices.forEach(d => { d.pendingAdmin = null; });
+  loadDevices();
+  toast('Changes discarded');
+}
+
+// ==========================================================
+// CLEAR FORCE
 // ==========================================================
 async function clearForce(id) {
   if (!FB_URL) return;
   busyIds.add(id);
-
-  const dev = allDevices.find(x => x.id === id);
-  const oldAdmin = dev ? dev.adminStatus : null;
-  if (dev) {
-    dev.adminStatus = null;
-    dev.isForced = false;
-    dev.shownOnline = dev.actualStatus;
-  }
-  renderDevices();
-  renderStats();
+  delete pendingChanges[id];
 
   try {
     const url = FB_URL + '/devices/' + id + '/adminStatus.json' + (FB_KEY ? '?auth=' + FB_KEY : '');
     const res = await fetch(url, { method: 'DELETE' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    toast('✓ Force reset — actual status showing');
+    toast('✓ Reset — actual status showing', 'success');
   } catch (e) {
-    if (dev) {
-      dev.adminStatus = oldAdmin;
-      dev.isForced = oldAdmin === 'online' || oldAdmin === 'offline';
-      dev.shownOnline = dev.isForced ? (oldAdmin === 'online') : dev.actualStatus;
-    }
     toast('Reset failed: ' + e.message, true);
   } finally {
     busyIds.delete(id);
-    renderDevices();
-    renderStats();
-    setTimeout(() => loadDevices(), 800);
+    setTimeout(() => loadDevices(), 300);
+  }
+}
+
+// ==========================================================
+// BULK BAR
+// ==========================================================
+function updateBulkBar() {
+  const count = Object.keys(pendingChanges).length;
+  const bar = document.getElementById('bulkBar');
+  const pCount = document.getElementById('pendingCount');
+  const saveBtn = document.getElementById('saveAllBtn');
+
+  if (count > 0) {
+    bar.style.display = 'flex';
+    pCount.textContent = count;
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Save All (' + count + ')';
+  } else {
+    bar.style.display = 'none';
+    saveBtn.disabled = true;
+    saveBtn.textContent = '💾 Save All Changes';
   }
 }
 
@@ -528,7 +670,7 @@ async function manualRefresh() {
   btn.disabled = true;
   try {
     await loadDevices();
-    toast('✓ Refreshed');
+    toast('✓ Refreshed', 'success');
   } finally {
     setTimeout(() => {
       btn.classList.remove('spinning');
@@ -546,12 +688,14 @@ function esc(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-function toast(msg, isErr) {
+function toast(msg, type) {
   const el = document.getElementById('toastEl');
   el.textContent = msg;
-  el.className = 'toast show' + (isErr ? ' err' : '');
+  el.className = 'toast show' + (type === 'success' ? ' success' : (type === 'err' ? ' err' : ''));
   clearTimeout(el._t);
-  el._t = setTimeout(() => { el.className = 'toast' + (isErr ? ' err' : ''); }, 2500);
+  el._t = setTimeout(() => {
+    el.className = 'toast' + (type === 'success' ? ' success' : (type === 'err' ? ' err' : ''));
+  }, 2500);
 }
 
 document.getElementById('fbUrl').addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
