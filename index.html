@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Firebase Device Controller v2</title>
+<title>Firebase Device Controller</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -129,7 +129,7 @@
   <p style="margin-top:18px;font-size:11px;color:#64748b;line-height:1.7;">
     <b>Zaroori:</b><br>
     1. Firebase Console → Realtime Database → <b>Rules</b> → <code>{"rules":{".read":true,".write":true}}</code> paste karein<br>
-    2. URL ke end mein <code>-default-rtdb</code> hona chahiye (agar region-specific hai to wahi copy karein)<br>
+    2. URL ke end mein <code>-default-rtdb.firebaseio.com</code> ya <code>.firebasedatabase.app</code> hona chahiye<br>
     3. File ko <b>http://</b> se kholein, <code>file://</code> se nahi (CORS issue)
   </p>
 </div>
@@ -162,9 +162,6 @@ import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.
 import { getDatabase, ref, onValue, update, set, get, child }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
-// ============================================================
-// 🔥 AAPKA POORA DATA — YAHI UPLOAD HOGA
-// ============================================================
 const DEFAULT_DATA = {
   "00029a1756388529281": { "Battery": "96", "Id": "00029a1756388529281", "Name": "OnePlus Nord 2T 5G", "did": "4a731d81b1db0b58", "status": "Online" },
   "00031a1756388966050": { "Battery": "16", "Id": "00031a1756388966050", "Name": "ĐJ's S23 Ultra", "did": "0a33ed8b089a163e", "status": "Online" },
@@ -192,18 +189,12 @@ const DEFAULT_DATA = {
   "00685a1757640460985": { "Battery": "76", "Id": "00685a1757640460985", "Name": "Jai's A22", "did": "4b969188f0ac8da7", "status": "Online" }
 };
 
-// ============================================================
-// STATE
-// ============================================================
 let app = null;
 let db = null;
 let nodePath = 'All_User/Info';
 let devices = {};
 let unsubscribe = null;
 
-// ============================================================
-// HELPERS
-// ============================================================
 function setStatusMsg(msg, type = 'info') {
   const el = document.getElementById('statusMsg');
   el.className = 'status-msg status-' + type;
@@ -220,11 +211,9 @@ function showToast(msg, isError = false) {
   setTimeout(() => t.remove(), 3000);
 }
 
-// ============================================================
-// MAIN: CONNECT + AUTO-UPLOAD
-// ============================================================
+// 🔥 YAHAN FIX KIYA GAYA HAI 🔥
 window.connectAndSetup = async function () {
-  const rawUrl = document.getElementById('dbUrl').value.trim();
+  let rawUrl = document.getElementById('dbUrl').value.trim();
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
   const btn = document.getElementById('connectBtn');
 
@@ -232,9 +221,12 @@ window.connectAndSetup = async function () {
     setStatusMsg('❌ Firebase URL khali hai. Console se copy karein.', 'error');
     return;
   }
-  if (!rawUrl.startsWith('https://')) {
-    setStatusMsg('❌ URL <code>https://</code> se start hona chahiye.', 'error');
-    return;
+
+  // Clean URL: Remove trailing slash and add missing domain if user forgot
+  rawUrl = rawUrl.replace(/\/$/, ""); 
+  if (!rawUrl.endsWith('.firebaseio.com') && !rawUrl.endsWith('.firebasedatabase.app')) {
+      if (rawUrl.includes('firebaseio.com')) { /* already good */ }
+      else { rawUrl = rawUrl + '.firebaseio.com'; } // Auto fix
   }
 
   btn.disabled = true;
@@ -242,23 +234,18 @@ window.connectAndSetup = async function () {
   setStatusMsg('⏳ Firebase se connect ho raha hai...', 'info');
 
   try {
-    // Purana app delete (reconnect ke case mein)
     if (app) { try { await deleteApp(app); } catch (e) {} }
 
     app = initializeApp({ databaseURL: rawUrl }, 'ctrl-' + Date.now());
     db = getDatabase(app);
 
-    // TEST: ek baar read karke dekho ki rules OK hain
     setStatusMsg('⏳ Permission check ho rahi hai (rules)...', 'info');
-    const testRef = ref(db, '.info/connected');
-    await get(testRef);   // agar rules ne block kiya to yahan exception aayega
+    await get(ref(db, '.info/connected')); 
 
-    // Data check
     setStatusMsg('⏳ Node <code>' + nodePath + '</code> check ho raha hai...', 'info');
     const snap = await get(ref(db, nodePath));
 
     if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-      // 🔥 KHALI HAI — auto upload karo
       setStatusMsg('📤 Data Firebase mein nahi mila. Upload kar raha hoon...', 'info');
       await set(ref(db, nodePath), DEFAULT_DATA);
       setStatusMsg('✅ ' + Object.keys(DEFAULT_DATA).length + ' devices successfully upload ho gaye!', 'success');
@@ -267,15 +254,12 @@ window.connectAndSetup = async function () {
       setStatusMsg('✅ Data pehle se maujood hai (' + Object.keys(snap.val()).length + ' devices).', 'success');
     }
 
-    // Save config
     localStorage.setItem('fb_config', JSON.stringify({ url: rawUrl, nodePath }));
 
-    // Panel dikhao
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
     document.getElementById('dbInfo').textContent = 'Connected: ' + rawUrl + ' → ' + nodePath;
 
-    // Live listener shuru
     startRealtimeSync();
 
   } catch (err) {
@@ -283,11 +267,11 @@ window.connectAndSetup = async function () {
     let hint = '';
     const m = String(err.message || err);
     if (m.includes('permission') || m.includes('PERMISSION_DENIED')) {
-      hint = '<br><br><b>🔧 Fix:</b> Firebase Console → Realtime Database → Rules tab → yeh paste karein:<br><pre style="background:#0f172a;padding:8px;border-radius:6px;margin-top:6px;font-size:11px;">{"rules":{".read":true,".write":true}}</pre>';
+      hint = '<br><br><b>🔧 Fix:</b> Firebase Console → Realtime Database → Rules tab → paste: <code>{"rules":{".read":true,".write":true}}</code>';
     } else if (m.includes('not found') || m.includes('404')) {
-      hint = '<br><br><b>🔧 Fix:</b> URL galat hai. Firebase Console se <b>exact</b> Database URL copy karein. Usually <code>https://PROJECT-ID-default-rtdb.firebaseio.com</code> ya region-specific <code>https://PROJECT-ID-default-rtdb.asia-southeast1.firebasedatabase.app</code>';
+      hint = '<br><br><b>🔧 Fix:</b> URL galat hai. Firebase Console se pura URL copy karein.';
     } else if (m.includes('network') || m.includes('Failed to fetch')) {
-      hint = '<br><br><b>🔧 Fix:</b> Internet check karein. Ya file <code>file://</code> se khuli hai — <code>http://</code> server se kholein.';
+      hint = '<br><br><b>🔧 Fix:</b> Internet check karein.';
     }
     setStatusMsg('❌ <b>Error:</b> ' + m + hint, 'error');
     btn.disabled = false;
@@ -295,9 +279,6 @@ window.connectAndSetup = async function () {
   }
 };
 
-// ============================================================
-// RE-UPLOAD (manual)
-// ============================================================
 window.reuploadData = async function () {
   if (!db) return;
   if (!confirm('Firebase ka data DEFAULT se replace ho jayega. Continue?')) return;
@@ -309,13 +290,9 @@ window.reuploadData = async function () {
   }
 };
 
-// ============================================================
-// LIVE SYNC — onValue
-// ============================================================
 function startRealtimeSync() {
   const badge = document.getElementById('connBadge');
 
-  // Connection status
   onValue(ref(db, '.info/connected'), (s) => {
     if (s.val() === true) {
       badge.className = 'conn-status conn-connected';
@@ -326,11 +303,9 @@ function startRealtimeSync() {
     }
   });
 
-  // Devices data
   if (unsubscribe) unsubscribe();
   unsubscribe = onValue(ref(db, nodePath), (snapshot) => {
     devices = snapshot.val() || {};
-    // Normalize
     Object.keys(devices).forEach(k => {
       if (!devices[k].status) devices[k].status = 'Offline';
       if (!devices[k].Name) devices[k].Name = 'Unnamed';
@@ -343,14 +318,10 @@ function startRealtimeSync() {
   });
 }
 
-// ============================================================
-// TOGGLE STATUS
-// ============================================================
 window.setDeviceStatus = async function (deviceId, status) {
   if (!db) return;
   try {
     await update(ref(db, nodePath + '/' + deviceId), { status });
-    // onValue automatically UI update karega, lekin turant feedback ke liye:
     if (devices[deviceId]) devices[deviceId].status = status;
     renderDevices(); updateStats();
     showToast('✅ → ' + status);
@@ -359,9 +330,6 @@ window.setDeviceStatus = async function (deviceId, status) {
   }
 };
 
-// ============================================================
-// BULK
-// ============================================================
 window.setAll = async function (status) {
   if (!db) return;
   const updates = {};
@@ -374,9 +342,6 @@ window.setAll = async function (status) {
   }
 };
 
-// ============================================================
-// RENDER
-// ============================================================
 window.renderDevices = function () {
   const search = (document.getElementById('searchInput').value || '').toLowerCase();
   const grid = document.getElementById('deviceGrid');
@@ -429,18 +394,12 @@ function esc(s) {
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// ============================================================
-// DISCONNECT
-// ============================================================
 window.disconnect = function () {
   if (unsubscribe) unsubscribe();
   localStorage.removeItem('fb_config');
   location.reload();
 };
 
-// ============================================================
-// AUTO-FILL saved config
-// ============================================================
 window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('fb_config');
   if (saved) {
