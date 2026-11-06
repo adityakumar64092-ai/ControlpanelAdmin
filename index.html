@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Firebase Device Controller v2</title>
+<title>Firebase Device Controller</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -11,101 +11,90 @@
     background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px;
   }
   .container { max-width: 1300px; margin: 0 auto; }
-  h1 { color: #38bdf8; margin-bottom: 8px; font-size: 24px; }
-  .subtitle { color: #94a3b8; margin-bottom: 20px; font-size: 13px; }
+  h1 { color: #38bdf8; margin-bottom: 8px; font-size: 26px; }
+  .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 13px; }
 
   .setup-box {
-    background: #1e293b; padding: 26px; border-radius: 12px;
-    max-width: 640px; margin: 40px auto; border: 1px solid #334155;
+    background: #1e293b; padding: 28px; border-radius: 12px;
+    max-width: 600px; margin: 60px auto; border: 1px solid #334155;
   }
-  .setup-box h2 { color: #38bdf8; margin-bottom: 8px; font-size: 19px; }
+  .setup-box h2 { color: #38bdf8; margin-bottom: 16px; font-size: 20px; }
   .setup-box label {
-    display: block; font-size: 11px; color: #94a3b8;
-    margin-bottom: 5px; margin-top: 14px; text-transform: uppercase; font-weight: 600;
+    display: block; font-size: 12px; color: #94a3b8;
+    margin-bottom: 6px; margin-top: 14px; text-transform: uppercase;
   }
-  input, select {
+  input, textarea {
     width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #334155;
     background: #0f172a; color: #e2e8f0; font-size: 14px; font-family: monospace;
   }
-  input:focus, select:focus { outline: none; border-color: #38bdf8; }
+  input:focus, textarea:focus { outline: none; border-color: #38bdf8; }
+  textarea { min-height: 140px; resize: vertical; }
   button {
     padding: 12px 20px; border-radius: 8px; border: none;
     background: #38bdf8; color: #0f172a; font-weight: 600; font-size: 14px;
     cursor: pointer; transition: 0.2s;
   }
-  button:hover:not(:disabled) { background: #0ea5e9; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .full-btn { width: 100%; margin-top: 18px; padding: 14px; font-size: 15px; }
-
-  .status-msg {
-    margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 13px;
-    line-height: 1.5; display: none;
-  }
-  .status-info { background: #1e3a8a33; color: #93c5fd; border: 1px solid #3b82f655; display: block; }
-  .status-error { background: #7f1d1d33; color: #fca5a5; border: 1px solid #dc262655; display: block; }
-  .status-success { background: #14532d33; color: #86efac; border: 1px solid #22c55e55; display: block; }
+  button:hover { background: #0ea5e9; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .full-btn { width: 100%; margin-top: 20px; padding: 14px; font-size: 15px; }
 
   .toolbar {
-    display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+    display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center;
   }
-  .toolbar input { flex: 1; min-width: 180px; }
+  .toolbar input { flex: 1; min-width: 200px; }
   .btn-secondary { background: #334155; color: #e2e8f0; }
-  .btn-secondary:hover:not(:disabled) { background: #475569; }
+  .btn-secondary:hover { background: #475569; }
   .btn-danger { background: #ef4444; color: white; }
-  .btn-danger:hover:not(:disabled) { background: #dc2626; }
-  .btn-warn { background: #f59e0b; color: #0f172a; }
-  .btn-warn:hover:not(:disabled) { background: #d97706; }
+  .btn-danger:hover { background: #dc2626; }
 
-  .stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .stat { background: #1e293b; padding: 12px 20px; border-radius: 8px; border: 1px solid #334155; }
-  .stat-value { font-size: 20px; font-weight: 700; color: #38bdf8; }
-  .stat-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
+  .stats { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .stat { background: #1e293b; padding: 14px 22px; border-radius: 8px; border: 1px solid #334155; }
+  .stat-value { font-size: 22px; font-weight: 700; color: #38bdf8; }
+  .stat-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
 
   .device-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;
   }
   .device-card {
     background: #1e293b; border-radius: 10px; padding: 14px;
-    border: 1px solid #334155; transition: 0.2s;
+    border: 1px solid #334155; transition: 0.3s;
   }
   .device-card.online { border-left: 4px solid #22c55e; }
-  .device-card.offline { border-left: 4px solid #ef4444; opacity: 0.9; }
+  .device-card.offline { border-left: 4px solid #ef4444; opacity: 0.85; }
 
-  .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; gap: 8px; }
-  .device-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; word-break: break-word; }
-  .device-id { font-size: 10px; color: #64748b; font-family: monospace; word-break: break-all; }
+  .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+  .device-name { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+  .device-id { font-size: 10px; color: #64748b; font-family: monospace; }
   .status-badge {
-    padding: 3px 8px; border-radius: 20px; font-size: 10px;
-    font-weight: 600; text-transform: uppercase; white-space: nowrap;
+    padding: 3px 9px; border-radius: 20px; font-size: 10px;
+    font-weight: 600; text-transform: uppercase;
   }
   .badge-online { background: #22c55e22; color: #22c55e; }
   .badge-offline { background: #ef444422; color: #ef4444; }
 
   .device-info { display: flex; gap: 10px; margin: 8px 0; font-size: 11px; color: #94a3b8; }
-  .device-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .device-actions { display: flex; gap: 6px; margin-top: 10px; }
   .device-actions button { flex: 1; padding: 7px; font-size: 12px; border-radius: 6px; }
   .btn-online { background: #22c55e; color: white; }
-  .btn-online:hover:not(:disabled) { background: #16a34a; }
+  .btn-online:hover { background: #16a34a; }
   .btn-offline { background: #ef4444; color: white; }
-  .btn-offline:hover:not(:disabled) { background: #dc2626; }
+  .btn-offline:hover { background: #dc2626; }
 
   .conn-status {
-    display: inline-block; padding: 3px 10px; border-radius: 20px;
-    font-size: 10px; font-weight: 600; margin-left: 8px;
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin-left: 10px;
   }
   .conn-connected { background: #22c55e22; color: #22c55e; }
   .conn-disconnected { background: #ef444422; color: #ef4444; }
   .conn-connecting { background: #f59e0b22; color: #f59e0b; }
-
   .hidden { display: none !important; }
 
   .toast {
     position: fixed; bottom: 20px; right: 20px; background: #1e293b;
     padding: 14px 18px; border-radius: 8px; border: 1px solid #38bdf8;
-    font-size: 13px; z-index: 999; max-width: 340px;
+    font-size: 13px; z-index: 999; max-width: 320px;
     animation: slideIn 0.3s ease;
   }
-  .toast.error { border-color: #ef4444; color: #fca5a5; }
   @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 </style>
 </head>
@@ -113,25 +102,20 @@
 
 <!-- SETUP SCREEN -->
 <div id="setupScreen" class="setup-box">
-  <h2>🔥 Firebase Connection Setup</h2>
-  <p class="subtitle" style="margin-bottom:0;">Ek baar setup karein — data upload + live sync automatic</p>
+  <h2>🔥 Firebase Setup</h2>
+  <p class="subtitle">Ek baar setup karein, phir seedha control panel khulega</p>
 
   <label>Firebase Realtime Database URL</label>
   <input type="text" id="dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" />
 
-  <label>Node Path (jahan devices rahenge)</label>
-  <input type="text" id="nodePath" value="All_User/Info" />
+  <label>Firebase API Key (optional — agar auth enabled hai)</label>
+  <input type="text" id="apiKey" placeholder="AIzaSy..." />
 
-  <button class="full-btn" id="connectBtn" onclick="connectAndSetup()">Connect & Upload Data</button>
+  <label>Node Path (jahan aapka data hai)</label>
+  <input type="text" id="nodePath" placeholder="All_User/Info" value="All_User/Info" />
 
-  <div id="statusMsg" class="status-msg"></div>
-
-  <p style="margin-top:18px;font-size:11px;color:#64748b;line-height:1.7;">
-    <b>Zaroori:</b><br>
-    1. Firebase Console → Realtime Database → <b>Rules</b> → <code>{"rules":{".read":true,".write":true}}</code> paste karein<br>
-    2. URL ke end mein <code>-default-rtdb</code> hona chahiye (agar region-specific hai to wahi copy karein)<br>
-    3. File ko <b>http://</b> se kholein, <code>file://</code> se nahi (CORS issue)
-  </p>
+  <button class="full-btn" onclick="connectFirebase()">Connect & Load Devices</button>
+  <p id="setupError" style="color:#ef4444;margin-top:12px;font-size:13px;"></p>
 </div>
 
 <!-- CONTROL PANEL -->
@@ -146,178 +130,99 @@
   </div>
 
   <div class="toolbar">
-    <input type="text" id="searchInput" placeholder="🔍 Search by name / id..." oninput="renderDevices()" />
+    <input type="text" id="searchInput" placeholder="🔍 Search device..." oninput="renderDevices()" />
     <button class="btn-secondary" onclick="setAll('Online')">All Online</button>
     <button class="btn-secondary" onclick="setAll('Offline')">All Offline</button>
-    <button class="btn-warn" onclick="reuploadData()">↻ Re-upload Data</button>
+    <button class="btn-secondary" onclick="addDevice()">+ Add Device</button>
     <button class="btn-danger" onclick="disconnect()">Disconnect</button>
   </div>
 
   <div class="device-grid" id="deviceGrid"></div>
 </div>
 
-<!-- FIREBASE SDK v10 -->
+<!-- FIREBASE SDK -->
 <script type="module">
-import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, set, get, child }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, set, get }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
-// ============================================================
-// 🔥 AAPKA POORA DATA — YAHI UPLOAD HOGA
-// ============================================================
-const DEFAULT_DATA = {
-  "00029a1756388529281": { "Battery": "96", "Id": "00029a1756388529281", "Name": "OnePlus Nord 2T 5G", "did": "4a731d81b1db0b58", "status": "Online" },
-  "00031a1756388966050": { "Battery": "16", "Id": "00031a1756388966050", "Name": "ĐJ's S23 Ultra", "did": "0a33ed8b089a163e", "status": "Online" },
-  "00065a1756401015923": { "Battery": "93", "Id": "00065a1756401015923", "Name": "realme 14 Pro+ 5G", "did": "fe7c10d2341ee8a3", "status": "Online" },
-  "00138a1756525555297": { "Battery": "79", "Id": "00138a1756525555297", "Name": "V2315", "did": "4d191af7e613011e", "status": "Online" },
-  "00153a1756552941803": { "Battery": "20", "Id": "00153a1756552941803", "Name": "OnePlus Nord CE4", "did": "b5a5989998faa031", "status": "Online" },
-  "00169a1756568093310": { "Battery": "100", "Id": "00169a1756568093310", "Name": "I2127", "did": "b316e815b590aa21", "status": "Online" },
-  "00196a1756627928638": { "Battery": "39", "Id": "00196a1756627928638", "Name": "VINAYAK's S20 FE", "did": "326f851a5eeaea37", "status": "Online" },
-  "00256a1756722455180": { "Battery": "3", "Id": "00256a1756722455180", "Name": "V2351", "did": "08279d429beaf249", "status": "Online" },
-  "00259a1756728563832": { "Battery": "84", "Id": "00259a1756728563832", "Name": "OnePlus Nord 2T 5G", "did": "18fff957a8a4a558", "status": "Online" },
-  "00281a1756776773303": { "Battery": "52", "Id": "00281a1756776773303", "Name": "V2205", "did": "4e39c0ead8a42f1b", "status": "Online" },
-  "00303a1756806598319": { "Battery": "30", "Id": "00303a1756806598319", "Name": "V2351", "did": "a49c2d126843c288", "status": "Online" },
-  "00307a1756811078910": { "Battery": "58", "Id": "00307a1756811078910", "Name": "realme 11x 5G", "did": "7a0f6458b1bf6567", "status": "Online" },
-  "00340a1757086399125": { "Battery": "38", "Id": "00340a1757086399125", "Name": "V2415", "did": "ca782ba4d0ab8839", "status": "Online" },
-  "00347a1757087320485": { "Battery": "66", "Id": "00347a1757087320485", "Name": "realme C33", "did": "f4fb7f6429574686", "status": "Online" },
-  "00390a1757153456898": { "Battery": "52", "Id": "00390a1757153456898", "Name": "OnePlus Nord CE 3 Lite 5G", "did": "ff143ef316bb59d1", "status": "Offline" },
-  "00408a1757173731858": { "Battery": "81", "Id": "00408a1757173731858", "Name": "OPPO A16", "did": "b5dea82c659a5842", "status": "Online" },
-  "00495a1757246893574": { "Battery": "51", "Id": "00495a1757246893574", "Name": "realme 8s 5G", "did": "799abe138da54f24", "status": "Online" },
-  "00522a1757289744537": { "Battery": "70", "Id": "00522a1757289744537", "Name": "realme C30", "did": "d6b3a6cbd0d9fe77", "status": "Offline" },
-  "00528a1757295774780": { "Battery": "94", "Id": "00528a1757295774780", "Name": "V2407", "did": "12345eae474d93fc", "status": "Online" },
-  "00529a1757295811695": { "Battery": "32", "Id": "00529a1757295811695", "Name": "V2416", "did": "c21f4e810634a69f", "status": "Online" },
-  "00538a1757317852217": { "Battery": "67", "Id": "00538a1757317852217", "Name": "Galaxy A16 5G", "did": "377a8e8b706de8e5", "status": "Online" },
-  "00642a1757515373932": { "Battery": "97", "Id": "00642a1757515373932", "Name": "RMX1925", "did": "2f9959a59b5a2bb7", "status": "Online" },
-  "00684a1757640376434": { "Battery": "25", "Id": "00684a1757640376434", "Name": "Satyaveer's A04s", "did": "ee6592c1d8c4b927", "status": "Online" },
-  "00685a1757640460985": { "Battery": "76", "Id": "00685a1757640460985", "Name": "Jai's A22", "did": "4b969188f0ac8da7", "status": "Online" }
-};
-
-// ============================================================
-// STATE
-// ============================================================
-let app = null;
+// ---- GLOBAL STATE ----
 let db = null;
 let nodePath = 'All_User/Info';
 let devices = {};
-let unsubscribe = null;
 
 // ============================================================
-// HELPERS
+// CONNECT TO FIREBASE
 // ============================================================
-function setStatusMsg(msg, type = 'info') {
-  const el = document.getElementById('statusMsg');
-  el.className = 'status-msg status-' + type;
-  el.innerHTML = msg;
-}
-function clearStatusMsg() {
-  document.getElementById('statusMsg').className = 'status-msg';
-}
-function showToast(msg, isError = false) {
-  const t = document.createElement('div');
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
-
-// ============================================================
-// MAIN: CONNECT + AUTO-UPLOAD
-// ============================================================
-window.connectAndSetup = async function () {
-  const rawUrl = document.getElementById('dbUrl').value.trim();
+window.connectFirebase = async function () {
+  const url = document.getElementById('dbUrl').value.trim();
+  const apiKey = document.getElementById('apiKey').value.trim();
   nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
-  const btn = document.getElementById('connectBtn');
+  const errEl = document.getElementById('setupError');
 
-  if (!rawUrl) {
-    setStatusMsg('❌ Firebase URL khali hai. Console se copy karein.', 'error');
-    return;
-  }
-  if (!rawUrl.startsWith('https://')) {
-    setStatusMsg('❌ URL <code>https://</code> se start hona chahiye.', 'error');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Connecting...';
-  setStatusMsg('⏳ Firebase se connect ho raha hai...', 'info');
+  if (!url) { errEl.textContent = '❌ Database URL required'; return; }
+  errEl.textContent = '';
 
   try {
-    // Purana app delete (reconnect ke case mein)
-    if (app) { try { await deleteApp(app); } catch (e) {} }
+    const config = { databaseURL: url };
+    if (apiKey) config.apiKey = apiKey;
 
-    app = initializeApp({ databaseURL: rawUrl }, 'ctrl-' + Date.now());
+    const app = initializeApp(config);
     db = getDatabase(app);
 
-    // TEST: ek baar read karke dekho ki rules OK hain
-    setStatusMsg('⏳ Permission check ho rahi hai (rules)...', 'info');
-    const testRef = ref(db, '.info/connected');
-    await get(testRef);   // agar rules ne block kiya to yahan exception aayega
-
-    // Data check
-    setStatusMsg('⏳ Node <code>' + nodePath + '</code> check ho raha hai...', 'info');
+    // Test connection by reading once
     const snap = await get(ref(db, nodePath));
-
-    if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-      // 🔥 KHALI HAI — auto upload karo
-      setStatusMsg('📤 Data Firebase mein nahi mila. Upload kar raha hoon...', 'info');
-      await set(ref(db, nodePath), DEFAULT_DATA);
-      setStatusMsg('✅ ' + Object.keys(DEFAULT_DATA).length + ' devices successfully upload ho gaye!', 'success');
-      showToast('✅ Data uploaded to Firebase');
-    } else {
-      setStatusMsg('✅ Data pehle se maujood hai (' + Object.keys(snap.val()).length + ' devices).', 'success');
+    if (!snap.exists()) {
+      errEl.textContent = `⚠️ Node "${nodePath}" khali hai. Kuch devices nahi mile.`;
     }
 
-    // Save config
-    localStorage.setItem('fb_config', JSON.stringify({ url: rawUrl, nodePath }));
+    // Save to localStorage for next time
+    localStorage.setItem('fb_config', JSON.stringify({ url, apiKey, nodePath }));
 
-    // Panel dikhao
     document.getElementById('setupScreen').classList.add('hidden');
     document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('dbInfo').textContent = 'Connected: ' + rawUrl + ' → ' + nodePath;
+    document.getElementById('dbInfo').textContent = `Connected: ${url} → ${nodePath}`;
 
-    // Live listener shuru
     startRealtimeSync();
-
-  } catch (err) {
-    console.error(err);
-    let hint = '';
-    const m = String(err.message || err);
-    if (m.includes('permission') || m.includes('PERMISSION_DENIED')) {
-      hint = '<br><br><b>🔧 Fix:</b> Firebase Console → Realtime Database → Rules tab → yeh paste karein:<br><pre style="background:#0f172a;padding:8px;border-radius:6px;margin-top:6px;font-size:11px;">{"rules":{".read":true,".write":true}}</pre>';
-    } else if (m.includes('not found') || m.includes('404')) {
-      hint = '<br><br><b>🔧 Fix:</b> URL galat hai. Firebase Console se <b>exact</b> Database URL copy karein. Usually <code>https://PROJECT-ID-default-rtdb.firebaseio.com</code> ya region-specific <code>https://PROJECT-ID-default-rtdb.asia-southeast1.firebasedatabase.app</code>';
-    } else if (m.includes('network') || m.includes('Failed to fetch')) {
-      hint = '<br><br><b>🔧 Fix:</b> Internet check karein. Ya file <code>file://</code> se khuli hai — <code>http://</code> server se kholein.';
-    }
-    setStatusMsg('❌ <b>Error:</b> ' + m + hint, 'error');
-    btn.disabled = false;
-    btn.textContent = 'Connect & Upload Data';
-  }
-};
-
-// ============================================================
-// RE-UPLOAD (manual)
-// ============================================================
-window.reuploadData = async function () {
-  if (!db) return;
-  if (!confirm('Firebase ka data DEFAULT se replace ho jayega. Continue?')) return;
-  try {
-    await set(ref(db, nodePath), DEFAULT_DATA);
-    showToast('✅ Data re-uploaded');
   } catch (e) {
-    showToast('❌ ' + e.message, true);
+    errEl.textContent = '❌ Error: ' + e.message;
+    console.error(e);
   }
 };
 
 // ============================================================
-// LIVE SYNC — onValue
+// REAL-TIME LISTENER — yahi magic hai
 // ============================================================
 function startRealtimeSync() {
-  const badge = document.getElementById('connBadge');
+  const devicesRef = ref(db, nodePath);
 
-  // Connection status
-  onValue(ref(db, '.info/connected'), (s) => {
-    if (s.val() === true) {
+  onValue(devicesRef, (snapshot) => {
+    // Connection badge
+    const badge = document.getElementById('connBadge');
+    badge.className = 'conn-status conn-connected';
+    badge.textContent = 'Live';
+
+    devices = snapshot.val() || {};
+
+    // Normalize: agar kisi device mein status nahi hai to default Offline
+    Object.keys(devices).forEach(k => {
+      if (!devices[k].status) devices[k].status = 'Offline';
+    });
+
+    renderDevices();
+    updateStats();
+  }, (error) => {
+    const badge = document.getElementById('connBadge');
+    badge.className = 'conn-status conn-disconnected';
+    badge.textContent = 'Error';
+    console.error('Firebase error:', error);
+  });
+
+  // Monitor connection state
+  const connectedRef = ref(db, '.info/connected');
+  onValue(connectedRef, (snap) => {
+    const badge = document.getElementById('connBadge');
+    if (snap.val() === true) {
       badge.className = 'conn-status conn-connected';
       badge.textContent = 'Live';
     } else {
@@ -325,52 +230,57 @@ function startRealtimeSync() {
       badge.textContent = 'Offline';
     }
   });
-
-  // Devices data
-  if (unsubscribe) unsubscribe();
-  unsubscribe = onValue(ref(db, nodePath), (snapshot) => {
-    devices = snapshot.val() || {};
-    // Normalize
-    Object.keys(devices).forEach(k => {
-      if (!devices[k].status) devices[k].status = 'Offline';
-      if (!devices[k].Name) devices[k].Name = 'Unnamed';
-    });
-    renderDevices();
-    updateStats();
-  }, (error) => {
-    console.error('Realtime error:', error);
-    showToast('❌ Sync error: ' + error.message, true);
-  });
 }
 
 // ============================================================
-// TOGGLE STATUS
+// CHANGE DEVICE STATUS (single device)
 // ============================================================
-window.setDeviceStatus = async function (deviceId, status) {
+async function setDeviceStatus(deviceId, status) {
   if (!db) return;
   try {
-    await update(ref(db, nodePath + '/' + deviceId), { status });
-    // onValue automatically UI update karega, lekin turant feedback ke liye:
-    if (devices[deviceId]) devices[deviceId].status = status;
-    renderDevices(); updateStats();
-    showToast('✅ → ' + status);
+    await update(ref(db, `${nodePath}/${deviceId}`), { status });
+    showToast(`✅ ${deviceId.slice(0, 10)}... → ${status}`);
   } catch (e) {
-    showToast('❌ ' + e.message, true);
+    showToast('❌ Error: ' + e.message);
   }
-};
+}
+window.setDeviceStatus = setDeviceStatus;
 
 // ============================================================
-// BULK
+// CHANGE ALL DEVICES
 // ============================================================
 window.setAll = async function (status) {
   if (!db) return;
   const updates = {};
-  Object.keys(devices).forEach(id => { updates[nodePath + '/' + id + '/status'] = status; });
+  Object.keys(devices).forEach(id => {
+    updates[`${nodePath}/${id}/status`] = status;
+  });
   try {
     await update(ref(db), updates);
-    showToast('✅ All → ' + status);
+    showToast(`✅ All devices → ${status}`);
   } catch (e) {
-    showToast('❌ ' + e.message, true);
+    showToast('❌ Error: ' + e.message);
+  }
+};
+
+// ============================================================
+// ADD NEW DEVICE
+// ============================================================
+window.addDevice = async function () {
+  const id = prompt('Device ID (unique):');
+  if (!id) return;
+  const name = prompt('Device Name:') || 'New Device';
+  try {
+    await set(ref(db, `${nodePath}/${id}`), {
+      Id: id,
+      Name: name,
+      Battery: '100',
+      did: id,
+      status: 'Offline'
+    });
+    showToast('✅ Device added');
+  } catch (e) {
+    showToast('❌ Error: ' + e.message);
   }
 };
 
@@ -378,13 +288,13 @@ window.setAll = async function (status) {
 // RENDER
 // ============================================================
 window.renderDevices = function () {
-  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const search = document.getElementById('searchInput').value.toLowerCase();
   const grid = document.getElementById('deviceGrid');
   grid.innerHTML = '';
 
   const entries = Object.entries(devices);
   if (entries.length === 0) {
-    grid.innerHTML = '<p style="color:#64748b;padding:20px;grid-column:1/-1;">Koi device nahi mila. "Re-upload Data" dabayein.</p>';
+    grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices found. "+ Add Device" se pehla device add karein.</p>';
     return;
   }
 
@@ -396,23 +306,24 @@ window.renderDevices = function () {
 
     const isOnline = d.status === 'Online';
     const card = document.createElement('div');
-    card.className = 'device-card ' + (isOnline ? 'online' : 'offline');
-    card.innerHTML = 
-      '<div class="device-header">' +
-        '<div>' +
-          '<div class="device-name">' + esc(name) + '</div>' +
-          '<div class="device-id">' + esc(d.did || id) + '</div>' +
-        '</div>' +
-        '<span class="status-badge ' + (isOnline ? 'badge-online' : 'badge-offline') + '">' + d.status + '</span>' +
-      '</div>' +
-      '<div class="device-info">' +
-        '<span>🔋 ' + esc(d.Battery || '?') + '%</span>' +
-        '<span>🆔 ' + id.slice(0, 12) + '...</span>' +
-      '</div>' +
-      '<div class="device-actions">' +
-        '<button class="btn-online" ' + (isOnline ? 'disabled' : '') + ' onclick="setDeviceStatus(\'' + id + '\', \'Online\')">Online</button>' +
-        '<button class="btn-offline" ' + (!isOnline ? 'disabled' : '') + ' onclick="setDeviceStatus(\'' + id + '\', \'Offline\')">Offline</button>' +
-      '</div>';
+    card.className = `device-card ${isOnline ? 'online' : 'offline'}`;
+    card.innerHTML = `
+      <div class="device-header">
+        <div>
+          <div class="device-name">${escapeHtml(name)}</div>
+          <div class="device-id">${escapeHtml(d.did || id)}</div>
+        </div>
+        <span class="status-badge ${isOnline ? 'badge-online' : 'badge-offline'}">${d.status}</span>
+      </div>
+      <div class="device-info">
+        <span>🔋 ${d.Battery || '?'}%</span>
+        <span>🆔 ${id.slice(0, 12)}...</span>
+      </div>
+      <div class="device-actions">
+        <button class="btn-online" onclick="setDeviceStatus('${id}', 'Online')" ${isOnline ? 'disabled' : ''}>Online</button>
+        <button class="btn-offline" onclick="setDeviceStatus('${id}', 'Offline')" ${!isOnline ? 'disabled' : ''}>Offline</button>
+      </div>
+    `;
     grid.appendChild(card);
   });
 };
@@ -424,22 +335,29 @@ function updateStats() {
   document.getElementById('offlineCount').textContent = all.filter(d => d.status === 'Offline').length;
 }
 
-function esc(s) {
+function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
 }
 
 // ============================================================
 // DISCONNECT
 // ============================================================
 window.disconnect = function () {
-  if (unsubscribe) unsubscribe();
   localStorage.removeItem('fb_config');
   location.reload();
 };
 
 // ============================================================
-// AUTO-FILL saved config
+// AUTO-LOAD SAVED CONFIG
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('fb_config');
@@ -447,8 +365,9 @@ window.addEventListener('DOMContentLoaded', () => {
     try {
       const c = JSON.parse(saved);
       document.getElementById('dbUrl').value = c.url || '';
+      document.getElementById('apiKey').value = c.apiKey || '';
       document.getElementById('nodePath').value = c.nodePath || 'All_User/Info';
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }
 });
 </script>
