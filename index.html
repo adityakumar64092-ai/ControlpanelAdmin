@@ -1,265 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Device Controller</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Device Panel</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
-  .container { max-width: 1300px; margin: 0 auto; }
-  h1 { color: #38bdf8; margin-bottom: 8px; font-size: 24px; }
-  .subtitle { color: #94a3b8; margin-bottom: 20px; font-size: 13px; }
-  .setup-box { background: #1e293b; padding: 26px; border-radius: 12px; max-width: 640px; margin: 40px auto; border: 1px solid #334155; }
-  .setup-box h2 { color: #38bdf8; margin-bottom: 8px; font-size: 19px; }
-  .setup-box label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 5px; margin-top: 14px; text-transform: uppercase; font-weight: 600; }
-  input { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #e2e8f0; font-size: 14px; font-family: monospace; }
-  input:focus { outline: none; border-color: #38bdf8; }
-  button { padding: 12px 20px; border-radius: 8px; border: none; background: #38bdf8; color: #0f172a; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
-  button:hover:not(:disabled) { background: #0ea5e9; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
-  .full-btn { width: 100%; margin-top: 18px; padding: 14px; font-size: 15px; }
-  .status-msg { margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
-  .status-info { background: #1e3a8a33; color: #93c5fd; border: 1px solid #3b82f655; display: block; }
-  .status-error { background: #7f1d1d33; color: #fca5a5; border: 1px solid #dc262655; display: block; }
-  .status-success { background: #14532d33; color: #86efac; border: 1px solid #22c55e55; display: block; }
-  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-  .toolbar input { flex: 1; min-width: 180px; }
-  .btn-secondary { background: #334155; color: #e2e8f0; }
-  .btn-danger { background: #ef4444; color: white; }
-  .stats { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .stat { background: #1e293b; padding: 12px 20px; border-radius: 8px; border: 1px solid #334155; }
-  .stat-value { font-size: 20px; font-weight: 700; color: #38bdf8; }
-  .stat-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
-  .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
-  .device-card { background: #1e293b; border-radius: 10px; padding: 14px; border: 1px solid #334155; transition: 0.2s; }
-  .device-card.online { border-left: 4px solid #22c55e; }
-  .device-card.offline { border-left: 4px solid #ef4444; opacity: 0.9; }
-  .device-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; gap: 8px; }
-  .device-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; word-break: break-word; }
-  .device-id { font-size: 10px; color: #64748b; font-family: monospace; word-break: break-all; }
-  .status-badge { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
-  .badge-online { background: #22c55e22; color: #22c55e; }
-  .badge-offline { background: #ef444422; color: #ef4444; }
-  .device-info { display: flex; gap: 10px; margin: 8px 0; font-size: 11px; color: #94a3b8; }
-  .device-actions { display: flex; gap: 6px; margin-top: 8px; }
-  .device-actions button { flex: 1; padding: 7px; font-size: 12px; border-radius: 6px; }
-  .btn-online { background: #22c55e; color: white; }
-  .btn-offline { background: #ef4444; color: white; }
-  .conn-status { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; margin-left: 8px; }
-  .conn-connected { background: #22c55e22; color: #22c55e; }
-  .conn-disconnected { background: #ef444422; color: #ef4444; }
-  .conn-connecting { background: #f59e0b22; color: #f59e0b; }
-  .hidden { display: none !important; }
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Share+Tech+Mono&display=swap');
+:root{
+  --bg:#020205; --bg2:#0a0514; --bg3:#120a22; --bg4:#1a0f30;
+  --gold:#a020f0; --gold2:#bf55ec; --gold3:#d896ff;
+  --mint:#00d4aa; --rose:#ff0055; --sky:#0088ff; --cyan:#00d4ff;
+  --text:#f0f0ff; --sub:#8a9bb4; --dim:#4a5b74;
+  --border:rgba(160,32,240,.2); --border2:rgba(160,32,240,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{color:var(--text);font-family:'Exo 2',sans-serif;-webkit-font-smoothing:antialiased}
+
+/* SETUP SCREEN */
+#setup{display:flex;align-items:center;justify-content:center;height:100vh;padding:24px;
+  background:radial-gradient(circle at 20% 30%,rgba(160,32,240,.15),transparent 50%),
+             radial-gradient(circle at 80% 70%,rgba(0,212,255,.1),transparent 50%),var(--bg);}
+.setup-card{background:rgba(10,5,20,.85);backdrop-filter:blur(16px);
+  border:1px solid var(--border2);border-radius:24px;padding:40px;width:100%;max-width:440px;
+  box-shadow:0 40px 100px rgba(0,0,0,.9),0 0 80px rgba(160,32,240,.15);position:relative;overflow:hidden}
+.setup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#a020f0,#00d4ff,#a020f0);background-size:200%;
+  animation:shimmer 3s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+.setup-h{font-size:28px;font-weight:800;margin-bottom:8px}
+.gold-word{background:linear-gradient(90deg,#00d4ff,#a020f0,#00d4ff);background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 2.5s linear infinite}
+.setup-sub{font-size:13px;color:var(--sub);margin-bottom:24px;line-height:1.6}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--sub);margin-bottom:7px}
+.fi{width:100%;padding:13px 16px;background:rgba(16,28,46,.8);border:1px solid rgba(0,212,255,.14);
+  border-radius:12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;
+  outline:none;margin-bottom:16px;transition:border-color .2s}
+.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.fi::placeholder{color:var(--dim)}
+.cta{width:100%;padding:15px;border:none;border-radius:12px;color:#020810;
+  font-family:'Exo 2',sans-serif;font-size:15px;font-weight:800;cursor:pointer;
+  background:linear-gradient(135deg,#22e5ff,#00d4ff,#0088ff);
+  box-shadow:0 6px 30px rgba(0,212,255,.4);transition:all .25s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,212,255,.55)}
+
+/* MAIN PANEL */
+#panel{display:none;height:100vh;flex-direction:column}
+#panel.open{display:flex}
+.tb{background:linear-gradient(90deg,#080d14,#0c121c);border-bottom:1px solid var(--border);
+  height:56px;display:flex;align-items:center;gap:14px;padding:0 20px;flex-shrink:0;position:relative}
+.tb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.7),transparent)}
+.tb-logo{font-size:17px;font-weight:800}
+.tb-gl{background:linear-gradient(90deg,#00d4ff,#a020f0,#00d4ff);background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+.tb-pills{display:flex;gap:8px;margin-left:20px}
+.pill{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px}
+.p-t{background:rgba(0,212,255,.12);color:var(--cyan)}
+.p-on{background:rgba(0,212,170,.12);color:var(--mint)}
+.p-off{background:rgba(255,0,85,.1);color:var(--rose)}
+.tb-spacer{flex:1}
+.tb-btn{height:32px;padding:0 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;
+  transition:all .15s}
+.tb-btn:hover{color:var(--text);border-color:var(--border2);background:var(--bg4)}
+
+.body{display:flex;flex:1;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.tab-body{flex:1;overflow-y:auto;padding:24px}
+.sec-hdr{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--sub);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.sec-hdr::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+.dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.dev-card{background:linear-gradient(145deg,var(--bg3),var(--bg2));
+  border:1px solid var(--border);border-radius:18px;padding:20px;position:relative;
+  transition:all .2s;overflow:hidden}
+.dev-card:hover{border-color:var(--border2);transform:translateY(-2px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.dev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0}
+.dev-card.online::before{background:linear-gradient(90deg,#00d4aa,#00d4ff)}
+.dev-card.offline::before{background:linear-gradient(90deg,#ff0055,#ff6b00)}
+
+.dev-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.dev-av{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--bg4),#221440);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;position:relative}
+.av-dot{position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--bg2)}
+.av-dot.on{background:var(--mint);box-shadow:0 0 8px var(--mint);animation:pulse 2s infinite}
+.av-dot.off{background:var(--rose)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.dev-meta{flex:1;min-width:0}
+.dev-n{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;margin-bottom:3px}
+.dev-id{font-size:10px;color:var(--dim);font-family:'Share Tech Mono',monospace;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.dev-info{display:flex;gap:14px;padding:12px 0;margin-bottom:14px;
+  border-top:1px solid rgba(0,212,255,.06);border-bottom:1px solid rgba(0,212,255,.06)}
+.info-item{flex:1;min-width:0}
+.info-l{font-size:9px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.info-v{font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.toggle-lbl{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.5px}
+.toggle-lbl .actual{color:var(--dim);font-weight:400}
+.toggle-btn{position:relative;width:56px;height:30px;border-radius:30px;border:none;cursor:pointer;
+  transition:background .25s;flex-shrink:0}
+.toggle-btn.on{background:linear-gradient(135deg,#00d4aa,#00d4ff);
+  box-shadow:0 0 16px rgba(0,212,170,.4)}
+.toggle-btn.off{background:rgba(255,0,85,.25);border:1px solid rgba(255,0,85,.4)}
+.toggle-btn::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;
+  border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.toggle-btn.on::after{transform:translateX(26px)}
+.toggle-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--sub);
+  font-size:13px;gap:12px}
+.spinner{width:20px;height:20px;border-radius:50%;border:2px solid transparent;
+  border-top-color:var(--gold);border-right-color:var(--cyan);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty{text-align:center;padding:80px 20px;color:var(--dim)}
+.empty .ei{font-size:56px;margin-bottom:16px}
+.empty p{font-size:14px}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:linear-gradient(135deg,var(--bg4),var(--bg3));border:1px solid var(--border2);
+  color:var(--text);font-size:13px;font-weight:600;padding:12px 26px;border-radius:24px;
+  z-index:999;opacity:0;transition:all .35s;pointer-events:none;
+  box-shadow:0 10px 36px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{border-color:rgba(255,0,85,.5);color:var(--rose)}
 </style>
 </head>
 <body>
 
-<div id="setupScreen" class="setup-box">
-  <h2>🔥 Firebase Connection Setup</h2>
-  <p class="subtitle" style="margin-bottom:0;">Agar URL connect nahi hota, to bhi panel bina error ke khulega.</p>
+<!-- ========= SETUP SCREEN ========= -->
+<div id="setup">
+  <div class="setup-card">
+    <div class="setup-h"><span class="gold-word">Device</span> Control Panel</div>
+    <div class="setup-sub">Firebase se connect karo aur apne devices ka online/offline status manage karo</div>
 
-  <label>Firebase Realtime Database URL</label>
-  <input type="text" id="dbUrl" placeholder="https://maxjoker98-d9bcb-default-rtdb.firebaseio.com" />
+    <label class="fl">Firebase Database URL</label>
+    <input id="fbUrl" class="fi" placeholder="https://your-project.firebaseio.com" type="url"/>
 
-  <label>Node Path</label>
-  <input type="text" id="nodePath" value="All_User/Info" />
+    <label class="fl">API Key (optional)</label>
+    <input id="fbKey" class="fi" placeholder="Firebase API key (agar zaroori ho)" type="text"/>
 
-  <button class="full-btn" id="connectBtn" onclick="connectAndSetup()">Connect & Upload Data</button>
-  <div id="statusMsg" class="status-msg"></div>
+    <button type="button" class="cta" onclick="connect()">⚡ Connect →</button>
+
+    <div id="serr" style="color:var(--rose);font-size:12px;text-align:center;margin-top:14px;
+      display:none;background:rgba(255,0,85,.08);border:1px solid rgba(255,0,85,.2);
+      padding:10px 14px;border-radius:9px"></div>
+  </div>
 </div>
 
-<div id="appScreen" class="container hidden">
-  <h1>📱 Device Controller <span id="connBadge" class="conn-status conn-connecting">Connecting...</span></h1>
-  <p class="subtitle" id="dbInfo">—</p>
-  <div class="stats">
-    <div class="stat"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Total</div></div>
-    <div class="stat"><div class="stat-value" style="color:#22c55e" id="onlineCount">0</div><div class="stat-label">Online</div></div>
-    <div class="stat"><div class="stat-value" style="color:#ef4444" id="offlineCount">0</div><div class="stat-label">Offline</div></div>
+<!-- ========= MAIN PANEL ========= -->
+<div id="panel">
+  <div class="tb">
+    <div class="tb-logo"><span class="tb-gl">Device</span> Panel</div>
+    <div class="tb-pills">
+      <span class="pill p-t" id="pillTot">—</span>
+      <span class="pill p-on" id="pillOn">—</span>
+      <span class="pill p-off" id="pillOff">—</span>
+    </div>
+    <div class="tb-spacer"></div>
+    <button class="tb-btn" onclick="loadDevices()">↻ Refresh</button>
+    <button class="tb-btn" onclick="disconnect()">Disconnect</button>
   </div>
-  <div class="toolbar">
-    <input type="text" id="searchInput" placeholder="🔍 Search device..." oninput="renderDevices()" />
-    <button class="btn-secondary" onclick="setAll('Online')">All Online</button>
-    <button class="btn-secondary" onclick="setAll('Offline')">All Offline</button>
-    <button class="btn-danger" onclick="disconnect()">Disconnect</button>
+
+  <div class="body">
+    <div class="main">
+      <div class="tab-body">
+        <div class="sec-hdr">Devices — Live Status</div>
+        <div id="devGrid" class="dev-grid">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="device-grid" id="deviceGrid"></div>
 </div>
 
-<script type="module">
-import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+<div class="toast" id="toastEl"></div>
 
-const DEFAULT_DATA = {
-  "00029a1756388529281": { "Battery": "96", "Id": "00029a1756388529281", "Name": "OnePlus Nord 2T 5G", "did": "4a731d81b1db0b58", "status": "Online" },
-  "00031a1756388966050": { "Battery": "16", "Id": "00031a1756388966050", "Name": "ĐJ's S23 Ultra", "did": "0a33ed8b089a163e", "status": "Online" },
-  "00065a1756401015923": { "Battery": "93", "Id": "00065a1756401015923", "Name": "realme 14 Pro+ 5G", "did": "fe7c10d2341ee8a3", "status": "Online" },
-  "00138a1756525555297": { "Battery": "79", "Id": "00138a1756525555297", "Name": "V2315", "did": "4d191af7e613011e", "status": "Online" },
-  "00153a1756552941803": { "Battery": "20", "Id": "00153a1756552941803", "Name": "OnePlus Nord CE4", "did": "b5a5989998faa031", "status": "Online" },
-  "00169a1756568093310": { "Battery": "100", "Id": "00169a1756568093310", "Name": "I2127", "did": "b316e815b590aa21", "status": "Online" },
-  "00196a1756627928638": { "Battery": "39", "Id": "00196a1756627928638", "Name": "VINAYAK's S20 FE", "did": "326f851a5eeaea37", "status": "Online" },
-  "00256a1756722455180": { "Battery": "3", "Id": "00256a1756722455180", "Name": "V2351", "did": "08279d429beaf249", "status": "Online" },
-  "00259a1756728563832": { "Battery": "84", "Id": "00259a1756728563832", "Name": "OnePlus Nord 2T 5G", "did": "18fff957a8a4a558", "status": "Online" },
-  "00281a1756776773303": { "Battery": "52", "Id": "00281a1756776773303", "Name": "V2205", "did": "4e39c0ead8a42f1b", "status": "Online" },
-  "00303a1756806598319": { "Battery": "30", "Id": "00303a1756806598319", "Name": "V2351", "did": "a49c2d126843c288", "status": "Online" },
-  "00307a1756811078910": { "Battery": "58", "Id": "00307a1756811078910", "Name": "realme 11x 5G", "did": "7a0f6458b1bf6567", "status": "Online" },
-  "00340a1757086399125": { "Battery": "38", "Id": "00340a1757086399125", "Name": "V2415", "did": "ca782ba4d0ab8839", "status": "Online" },
-  "00347a1757087320485": { "Battery": "66", "Id": "00347a1757087320485", "Name": "realme C33", "did": "f4fb7f6429574686", "status": "Online" },
-  "00390a1757153456898": { "Battery": "52", "Id": "00390a1757153456898", "Name": "OnePlus Nord CE 3 Lite 5G", "did": "ff143ef316bb59d1", "status": "Offline" },
-  "00408a1757173731858": { "Battery": "81", "Id": "00408a1757173731858", "Name": "OPPO A16", "did": "b5dea82c659a5842", "status": "Online" },
-  "00495a1757246893574": { "Battery": "51", "Id": "00495a1757246893574", "Name": "realme 8s 5G", "did": "799abe138da54f24", "status": "Online" },
-  "00522a1757289744537": { "Battery": "70", "Id": "00522a1757289744537", "Name": "realme C30", "did": "d6b3a6cbd0d9fe77", "status": "Offline" },
-  "00528a1757295774780": { "Battery": "94", "Id": "00528a1757295774780", "Name": "V2407", "did": "12345eae474d93fc", "status": "Online" },
-  "00529a1757295811695": { "Battery": "32", "Id": "00529a1757295811695", "Name": "V2416", "did": "c21f4e810634a69f", "status": "Online" },
-  "00538a1757317852217": { "Battery": "67", "Id": "00538a1757317852217", "Name": "Galaxy A16 5G", "did": "377a8e8b706de8e5", "status": "Online" },
-  "00642a1757515373932": { "Battery": "97", "Id": "00642a1757515373932", "Name": "RMX1925", "did": "2f9959a59b5a2bb7", "status": "Online" },
-  "00684a1757640376434": { "Battery": "25", "Id": "00684a1757640376434", "Name": "Satyaveer's A04s", "did": "ee6592c1d8c4b927", "status": "Online" },
-  "00685a1757640460985": { "Battery": "76", "Id": "00685a1757640460985", "Name": "Jai's A22", "did": "4b969188f0ac8da7", "status": "Online" }
-};
+<script>
+// ============ STATE ============
+let FB_URL = '';
+let FB_KEY = '';
+let devices = [];
+let pollTimer = null;
 
-let app = null;
-let db = null;
-let nodePath = 'All_User/Info';
-let devices = {};
-let unsubscribe = null;
-let isOfflineMode = false;
+// ============ CONNECT ============
+function connect() {
+  const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/, '');
+  const key = document.getElementById('fbKey').value.trim();
+  const err = document.getElementById('serr');
 
-function setStatusMsg(msg, type = 'info') {
-  const el = document.getElementById('statusMsg');
-  el.className = 'status-msg status-' + type;
-  el.innerHTML = msg;
+  if (!url || !url.startsWith('http')) {
+    err.textContent = 'Sahi Firebase URL daalo (https://... se shuru ho)';
+    err.style.display = 'block';
+    return;
+  }
+
+  err.style.display = 'none';
+  FB_URL = url;
+  FB_KEY = key;
+
+  // Test connection
+  fetch(FB_URL + '/devices.json' + (FB_KEY ? '?auth=' + FB_KEY : ''))
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(() => {
+      document.getElementById('setup').style.display = 'none';
+      document.getElementById('panel').classList.add('open');
+      loadDevices();
+      startPolling();
+      toast('Connected ✓');
+    })
+    .catch(e => {
+      err.textContent = 'Connection failed — URL/key check karo (' + e.message + ')';
+      err.style.display = 'block';
+    });
 }
 
-window.connectAndSetup = async function () {
-  let inputUrl = document.getElementById('dbUrl').value.trim();
-  nodePath = document.getElementById('nodePath').value.trim() || 'All_User/Info';
-  const btn = document.getElementById('connectBtn');
+function disconnect() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  FB_URL = ''; FB_KEY = '';
+  devices = [];
+  document.getElementById('setup').style.display = 'flex';
+  document.getElementById('panel').classList.remove('open');
+}
 
-  if (!inputUrl) { setStatusMsg('URL daalein.', 'error'); return; }
-  if (!inputUrl.startsWith('http')) { inputUrl = 'https://' + inputUrl; }
+// ============ LOAD DEVICES ============
+async function loadDevices() {
+  if (!FB_URL) return;
+  try {
+    const res = await fetch(FB_URL + '/devices.json' + (FB_KEY ? '?auth=' + FB_KEY : ''));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
 
-  btn.disabled = true;
-  btn.textContent = 'Connecting...';
-  setStatusMsg('⏳ Firebase se connect kar raha hoon...', 'info');
+    devices = [];
+    if (data && typeof data === 'object') {
+      Object.keys(data).forEach(id => {
+        const d = data[id];
+        if (!d || typeof d !== 'object') return;
+        devices.push({
+          id: id,
+          name: d.name || d.deviceName || d.model || id,
+          phone: d.phone || d.mobNo || '—',
+          battery: d.batteryRaw != null ? d.batteryRaw : (d.batteryNum != null ? d.batteryNum + '%' : '—'),
+          actualStatus: !!d.status,           // device khud jo report kar raha hai
+          adminStatus: d.adminStatus || null, // admin ne jo set kiya
+        });
+      });
+      // Newest first (id usually timestamp-based)
+      devices.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+    }
+    renderDevices();
+    renderStats();
+  } catch (e) {
+    toast('Load failed: ' + e.message, true);
+  }
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(loadDevices, 5000); // har 5 sec refresh
+}
+
+// ============ RENDER ============
+function renderDevices() {
+  const grid = document.getElementById('devGrid');
+
+  if (devices.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ei">📱</div><p>Koi device nahi mila</p></div>';
+    return;
+  }
+
+  grid.innerHTML = devices.map(d => {
+    // Jo panel mein toggle dikhta hai — adminStatus priority, warna actual
+    const shownOnline = d.adminStatus !== null
+      ? (d.adminStatus === 'online')
+      : d.actualStatus;
+    const isForced = d.adminStatus !== null;
+
+    return `
+    <div class="dev-card ${shownOnline ? 'online' : 'offline'}">
+      <div class="dev-head">
+        <div class="dev-av">📱<div class="av-dot ${shownOnline ? 'on' : 'off'}"></div></div>
+        <div class="dev-meta">
+          <div class="dev-n">${esc(d.name)}</div>
+          <div class="dev-id">${esc(d.id)}</div>
+        </div>
+      </div>
+
+      <div class="dev-info">
+        <div class="info-item">
+          <div class="info-l">Phone</div>
+          <div class="info-v">${esc(d.phone)}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-l">Battery</div>
+          <div class="info-v">${esc(String(d.battery))}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-l">Actual</div>
+          <div class="info-v" style="color:${d.actualStatus ? 'var(--mint)' : 'var(--rose)'}">
+            ${d.actualStatus ? 'Online' : 'Offline'}
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-lbl">
+          Panel Status
+          ${isForced ? '<span class="actual">(forced)</span>' : ''}
+        </div>
+        <button class="toggle-btn ${shownOnline ? 'on' : 'off'}"
+                onclick="toggleDevice('${esc(d.id)}', ${shownOnline})"
+                title="Click to toggle ${shownOnline ? 'Offline' : 'Online'}">
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStats() {
+  const tot = devices.length;
+  const on = devices.filter(d => d.adminStatus !== null
+    ? d.adminStatus === 'online'
+    : d.actualStatus).length;
+  const off = tot - on;
+  document.getElementById('pillTot').textContent = 'Total: ' + tot;
+  document.getElementById('pillOn').textContent  = 'On: ' + on;
+  document.getElementById('pillOff').textContent = 'Off: ' + off;
+}
+
+// ============ TOGGLE ============
+async function toggleDevice(id, currentShownOnline) {
+  if (!FB_URL) return;
+
+  const newStatus = currentShownOnline ? 'offline' : 'online';
 
   try {
-    if (app) { try { await deleteApp(app); } catch (e) {} }
-    
-    app = initializeApp({ databaseURL: inputUrl }, 'ctrl-' + Date.now());
-    db = getDatabase(app);
+    // Firebase mein adminStatus set karo
+    const url = FB_URL + '/devices/' + id + '/adminStatus.json' + (FB_KEY ? '?auth=' + FB_KEY : '');
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newStatus)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    // Correct way to check DB read permission
-    const snap = await get(ref(db, nodePath));
-
-    // Agar yahan tak aaya matlab connection aur rules sahi hain!
-    setStatusMsg('✅ Firebase Connected! Data check ho raha hai...', 'success');
-    
-    if (!snap.exists() || Object.keys(snap.val() || {}).length === 0) {
-      await set(ref(db, nodePath), DEFAULT_DATA);
-    }
-
-    localStorage.setItem('fb_config', JSON.stringify({ url: inputUrl, nodePath }));
-    document.getElementById('setupScreen').classList.add('hidden');
-    document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('dbInfo').textContent = 'Connected: ' + inputUrl;
-    
-    startRealtimeSync();
-    isOfflineMode = false;
-
-  } catch (err) {
-    // ERROR BYPASS: Agar Firebase fail hua, toh bina error dikhaye Offline Mode chalu karo
-    isOfflineMode = true;
-    
-    let localData = localStorage.getItem('local_devices');
-    devices = localData ? JSON.parse(localData) : DEFAULT_DATA;
-
-    document.getElementById('setupScreen').classList.add('hidden');
-    document.getElementById('appScreen').classList.remove('hidden');
-    document.getElementById('dbInfo').textContent = '⚠️ Offline Mode (Firebase Connect Nahi Hua)';
-    
-    const badge = document.getElementById('connBadge');
-    badge.className = 'conn-status conn-disconnected';
-    badge.textContent = 'Offline';
-
-    renderDevices();
-    updateStats();
+    toast(`Device ${id.slice(0,8)}… → ${newStatus.toUpperCase()} ✓`);
+    loadDevices();
+  } catch (e) {
+    toast('Toggle failed: ' + e.message, true);
   }
-};
-
-function startRealtimeSync() {
-  const badge = document.getElementById('connBadge');
-  onValue(ref(db, '.info/connected'), (s) => {
-    badge.className = s.val() === true ? 'conn-status conn-connected' : 'conn-status conn-disconnected';
-    badge.textContent = s.val() === true ? 'Live' : 'Offline';
-  });
-  
-  if (unsubscribe) unsubscribe();
-  unsubscribe = onValue(ref(db, nodePath), (snapshot) => {
-    devices = snapshot.val() || {};
-    Object.keys(devices).forEach(k => { if (!devices[k].status) devices[k].status = 'Offline'; });
-    renderDevices(); updateStats();
-  }, (error) => { /* Background error ignore */ });
 }
 
-window.setDeviceStatus = async function (deviceId, status) {
-  if (devices[deviceId]) {
-      devices[deviceId].status = status;
-      renderDevices(); updateStats();
-  }
-
-  if (!isOfflineMode && db) {
-    try { await update(ref(db, nodePath + '/' + deviceId), { status }); } catch(e) {}
-  } else {
-    localStorage.setItem('local_devices', JSON.stringify(devices));
-  }
-};
-
-window.setAll = async function (status) {
-  Object.keys(devices).forEach(id => { devices[id].status = status; });
-  renderDevices(); updateStats();
-
-  if (!isOfflineMode && db) {
-    const updates = {};
-    Object.keys(devices).forEach(id => { updates[nodePath + '/' + id + '/status'] = status; });
-    try { await update(ref(db), updates); } catch(e) {}
-  } else {
-    localStorage.setItem('local_devices', JSON.stringify(devices));
-  }
-};
-
-window.renderDevices = function () {
-  const search = (document.getElementById('searchInput').value || '').toLowerCase();
-  const grid = document.getElementById('deviceGrid');
-  grid.innerHTML = '';
-  const entries = Object.entries(devices);
-  if (entries.length === 0) { grid.innerHTML = '<p style="color:#64748b;padding:20px;">No devices.</p>'; return; }
-  
-  entries.forEach(([id, d]) => {
-    const name = d.Name || 'Unnamed';
-    if (search && !name.toLowerCase().includes(search) && !id.toLowerCase().includes(search)) return;
-    const isOnline = d.status === 'Online';
-    const card = document.createElement('div');
-    card.className = 'device-card ' + (isOnline ? 'online' : 'offline');
-    card.innerHTML = 
-      '<div class="device-header"><div><div class="device-name">' + esc(name) + '</div><div class="device-id">' + esc(d.did || id) + '</div></div>' +
-      '<span class="status-badge ' + (isOnline ? 'badge-online' : 'badge-offline') + '">' + d.status + '</span></div>' +
-      '<div class="device-info"><span>🔋 ' + esc(d.Battery || '?') + '%</span><span>🆔 ' + id.slice(0, 12) + '...</span></div>' +
-      '<div class="device-actions"><button class="btn-online" ' + (isOnline ? 'disabled' : '') + ' onclick="setDeviceStatus(\'' + id + '\', \'Online\')">Online</button>' +
-      '<button class="btn-offline" ' + (!isOnline ? 'disabled' : '') + ' onclick="setDeviceStatus(\'' + id + '\', \'Offline\')">Offline</button></div>';
-    grid.appendChild(card);
-  });
-};
-
-function updateStats() {
-  const all = Object.values(devices);
-  document.getElementById('totalCount').textContent = all.length;
-  document.getElementById('onlineCount').textContent = all.filter(d => d.status === 'Online').length;
-  document.getElementById('offlineCount').textContent = all.filter(d => d.status === 'Offline').length;
+// ============ HELPERS ============
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function toast(msg, isErr) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.className = 'toast show' + (isErr ? ' err' : '');
+  setTimeout(() => { el.className = 'toast' + (isErr ? ' err' : ''); }, 2500);
+}
 
-window.disconnect = function () { localStorage.clear(); location.reload(); };
+// Enter key pe connect
+document.getElementById('fbUrl').addEventListener('keydown', e => {
+  if (e.key === 'Enter') connect();
+});
 </script>
 </body>
 </html>
